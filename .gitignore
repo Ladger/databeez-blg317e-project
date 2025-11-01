@@ -1,0 +1,10 @@
+# Ignore local environment files
+.env
+
+# Ignore system files
+.DS_Store
+Thumbs.db
+
+# Ignore any database credentials
+*.log
+*config.ini
