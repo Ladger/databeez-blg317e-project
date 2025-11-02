@@ -46,6 +46,7 @@ CREATE TABLE Publisher (
     Year_Established INT
 );
 
+DROP TABLE IF EXISTS Platform;
 CREATE TABLE Platform (
     Platform_ID INT AUTO_INCREMENT PRIMARY KEY,
     Platform_Name VARCHAR(250),
@@ -62,13 +63,6 @@ CREATE TABLE Platform_Stats(
     
     Top_Game_ID INT
 );
-
-
-
-
-
-
-
 
 
 
