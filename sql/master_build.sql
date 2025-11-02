@@ -38,6 +38,25 @@ CREATE TABLE Game (
     Genre_ID INT
 );
 
+DROP TABLE IF EXISTS Genre;
+CREATE TABLE Genre (
+    Genre_ID INT AUTO_INCREMENT PRIMARY KEY,
+    `Genre_Name` VARCHAR(100),
+    `Description` VARCHAR(255),
+    `Example_Game` VARCHAR(255),
+
+);
+
+DROP TABLE IF EXISTS Genre_Stats;
+CREATE TABLE Genre_Stats (
+    Genre_ID INT,
+    `Total_Games` INT,
+    `Total_Global_Sales` INT,
+    `Avg_Global_Sales` INT,
+
+    Top_Game_ID INT
+);
+
 -- ----------------------------------------------
 --          STEP 2: LOADING DATA
 -- ----------------------------------------------
