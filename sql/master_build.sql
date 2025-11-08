@@ -35,6 +35,14 @@ CREATE TABLE Platform (
     Release_Year INT
 );
 
+DROP TABLE IF EXISTS Genre;
+
+CREATE TABLE Genre (
+    Genre_ID INT AUTO_INCREMENT PRIMARY KEY,
+    Genre_Name VARCHAR(100) NOT NULL UNIQUE, -- Genre names are unique
+    Description VARCHAR(255),
+    Example_Game VARCHAR(255)
+);
 
 -- Since order is important for the tables with foreign keys, it should start with parents to dependents
 
@@ -139,6 +147,14 @@ FIELDS TERMINATED BY ','
 ENCLOSED BY '"'
 LINES TERMINATED BY '\n'
 IGNORE 1 ROWS;
+
+LOAD DATA LOCAL INFILE 'D:/databeez-blg317e-project/data/genres.csv'
+INTO TABLE Genre
+FIELDS TERMINATED BY ','
+ENCLOSED BY '"'
+LINES TERMINATED BY '\n'
+IGNORE 1 ROWS;
+
 -- Load Non-keys for Game Table
 
 ALTER TABLE Game
@@ -175,3 +191,17 @@ FROM
     vgsales_raw r
 JOIN
     Game g ON r.`Name` = g.`Name` AND r.`Rank` = g.`Rank`;
+
+
+-- Load Non-keys for Genre Table (Zeynep Nur Genel)
+INSERT INTO Genre (
+    Genre_Name, 
+    Description, 
+    Example_Game)
+
+SELECT
+    t.Genre_Name, 
+    t.Description, 
+    t.Example_Game
+FROM    
+    genres_raw t;
