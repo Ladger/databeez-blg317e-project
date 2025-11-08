@@ -2,7 +2,7 @@ USE databeez_db;
 
 
 LOAD DATA LOCAL INFILE 'D:/databeez-blg317e-project/data/platforms.csv'
-INTO TABLE Platform
+INTO TABLE Platform_raw
 FIELDS TERMINATED BY ','
 ENCLOSED BY '"'
 LINES TERMINATED BY '\n'

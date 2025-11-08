@@ -26,9 +26,9 @@ CREATE TABLE vgsales_raw (
     `Global_Sales` DECIMAL(5, 2)
 );
 
-DROP TABLE IF EXISTS Platform;
+DROP TABLE IF EXISTS Platform_raw;
 
-CREATE TABLE Platform (
+CREATE TABLE Platform_raw (
     Platform_ID INT AUTO_INCREMENT PRIMARY KEY,
     Platform_Name VARCHAR(100) NOT NULL UNIQUE, -- Her platform adı benzersiz olmalı
     Manufacturer VARCHAR(100),
@@ -142,7 +142,7 @@ LINES TERMINATED BY '\n'
 IGNORE 1 ROWS;
 
 LOAD DATA LOCAL INFILE 'D:/databeez-blg317e-project/data/platforms.csv'
-INTO TABLE Platform
+INTO TABLE Platform_raw
 FIELDS TERMINATED BY ','
 ENCLOSED BY '"'
 LINES TERMINATED BY '\n'
