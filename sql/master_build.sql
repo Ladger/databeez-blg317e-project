@@ -26,6 +26,16 @@ CREATE TABLE vgsales_raw (
     `Global_Sales` DECIMAL(5, 2)
 );
 
+DROP TABLE IF EXISTS Platform;
+
+CREATE TABLE Platform (
+    Platform_ID INT AUTO_INCREMENT PRIMARY KEY,
+    Platform_Name VARCHAR(100) NOT NULL UNIQUE, -- Her platform adı benzersiz olmalı
+    Manufacturer VARCHAR(100),
+    Release_Year INT
+);
+
+
 -- Since order is important for the tables with foreign keys, it should start with parents to dependents
 
 -- a. PARENT TABLES (Tables without foreign keys)
@@ -123,6 +133,12 @@ ENCLOSED BY '"'
 LINES TERMINATED BY '\n'
 IGNORE 1 ROWS;
 
+LOAD DATA LOCAL INFILE 'D:/databeez-blg317e-project/data/platforms.csv'
+INTO TABLE Platform
+FIELDS TERMINATED BY ','
+ENCLOSED BY '"'
+LINES TERMINATED BY '\n'
+IGNORE 1 ROWS;
 -- Load Non-keys for Game Table
 
 ALTER TABLE Game
