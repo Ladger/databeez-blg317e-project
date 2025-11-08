@@ -3,7 +3,7 @@ USE databeez_db;
 
 
 LOAD DATA LOCAL INFILE 'D:/databeez-blg317e-project/data/genres.csv'
-INTO TABLE Genre
+INTO TABLE Genre_Raw
 FIELDS TERMINATED BY ','
 ENCLOSED BY '"'
 LINES TERMINATED BY '\n'

@@ -35,9 +35,9 @@ CREATE TABLE Platform (
     Release_Year INT
 );
 
-DROP TABLE IF EXISTS Genre;
+DROP TABLE IF EXISTS Genre_Raw;
 
-CREATE TABLE Genre (
+CREATE TABLE Genre_Raw (
     Genre_ID INT AUTO_INCREMENT PRIMARY KEY,
     Genre_Name VARCHAR(100) NOT NULL UNIQUE, -- Genre names are unique
     Description VARCHAR(255),
@@ -204,4 +204,4 @@ SELECT
     t.Description, 
     t.Example_Game
 FROM    
-    genres_raw t;
+    genre_raw t;
