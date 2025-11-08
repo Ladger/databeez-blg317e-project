@@ -12,5 +12,5 @@ SELECT
     t.Description, 
     t.Example_Game
 FROM    
-    genres_raw t;
+    genre_raw t;
 
