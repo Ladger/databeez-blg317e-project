@@ -27,21 +27,24 @@ CREATE TABLE vgsales_raw (
 );
 
 DROP TABLE IF EXISTS Platform_raw;
-
 CREATE TABLE Platform_raw (
-    Platform_ID INT AUTO_INCREMENT PRIMARY KEY,
     Platform_Name VARCHAR(100) NOT NULL UNIQUE, -- Her platform adı benzersiz olmalı
     Manufacturer VARCHAR(100),
     Release_Year INT
 );
 
 DROP TABLE IF EXISTS Genre_Raw;
-
 CREATE TABLE Genre_Raw (
-    Genre_ID INT AUTO_INCREMENT PRIMARY KEY,
     Genre_Name VARCHAR(100) NOT NULL UNIQUE, -- Genre names are unique
-    Description VARCHAR(255),
+    `Description` VARCHAR(255),
     Example_Game VARCHAR(255)
+);
+
+DROP TABLE IF EXISTS Publisher_raw;
+CREATE TABLE Publisher_raw (
+    Publisher_Name VARCHAR(250),
+    Country VARCHAR(100),
+    Year_Established INT
 );
 
 -- Since order is important for the tables with foreign keys, it should start with parents to dependents
@@ -149,27 +152,83 @@ LINES TERMINATED BY '\n'
 IGNORE 1 ROWS;
 
 LOAD DATA LOCAL INFILE 'D:/databeez-blg317e-project/data/genres.csv'
-INTO TABLE Genre
+INTO TABLE Genre_Raw
 FIELDS TERMINATED BY ','
 ENCLOSED BY '"'
 LINES TERMINATED BY '\n'
 IGNORE 1 ROWS;
 
--- Load Non-keys for Game Table
+LOAD DATA LOCAL INFILE 'D:/databeez-blg317e-project/data/publishers.csv'
+INTO TABLE Publisher_raw
+FIELDS TERMINATED BY ','
+ENCLOSED BY '"'
+LINES TERMINATED BY '\n'
+IGNORE 1 ROWS;
 
-ALTER TABLE Game
-MODIFY COLUMN Publisher_ID INT NULL,
-MODIFY COLUMN Platform_ID  INT NULL,
-MODIFY COLUMN Genre_ID     INT NULL;
+-- a. PARENT TABLES (Tables without foreign keys)
 
--- If the entry is "N/A" we are returning NULL for that cell
-INSERT INTO Game (`Name`, `Year`, `Rank`)
+-- Load Non-keys for Genre Table (Zeynep Nur Genel)
+INSERT INTO Genre (
+    Genre_Name, 
+    Description, 
+    Example_Game)
+
 SELECT
+    t.Genre_Name, 
+    t.`Description`, 
+    t.Example_Game
+FROM    
+    genre_raw t;
+
+-- Load Non-keys for Platform Table (Mertcan Kılınç)
+INSERT INTO Platform (
+    Platform_Name, 
+    Manufacturer, 
+    Release_Year)
+
+SELECT
+    t.Platform_Name, 
+    t.Manufacturer, 
+    t.Release_Year
+FROM    
+    platform_raw t;
+
+-- Load Non-keys for Publisher Table (Mertcan Kılınç)
+INSERT INTO Publisher (
+    Publisher_Name, 
+    Country, 
+    Year_Established)
+
+SELECT
+    t.Publisher_Name, 
+    t.Country, 
+    t.Year_Established
+FROM    
+    publisher_raw t;
+
+-- b. CHILD TABLES (Have foreign key of parent tables)
+
+-- Load Game table with foreign keys (Berk Özcan)
+INSERT INTO Game (
     `Name`,
-    CAST(NULLIF(`Year`, 'N/A') AS UNSIGNED),
-    `Rank`
+    `Year`,
+    `Rank`,
+    Publisher_ID,
+    Platform_ID,
+    Genre_ID
+)
+SELECT
+    r.`Name`,
+    CAST(NULLIF(r.`Year`, 'N/A') AS UNSIGNED),
+    r.`Rank`,
+    p.Publisher_ID,
+    pl.Platform_ID,
+    g.Genre_ID
 FROM
-    vgsales_raw;
+    vgsales_raw r
+JOIN Publisher p ON r.Publisher = p.Publisher_Name
+JOIN Platform pl ON r.Platform = pl.Platform_Name
+JOIN Genre g ON r.Genre = g.Genre_Name;
 
 -- Load sales data into Sales Table (Zeynep Kocabıyık)
 INSERT INTO Sales (
@@ -191,17 +250,5 @@ FROM
     vgsales_raw r
 JOIN
     Game g ON r.`Name` = g.`Name` AND r.`Rank` = g.`Rank`;
-
-
--- Load Non-keys for Genre Table (Zeynep Nur Genel)
-INSERT INTO Genre (
-    Genre_Name, 
-    Description, 
-    Example_Game)
-
-SELECT
-    t.Genre_Name, 
-    t.Description, 
-    t.Example_Game
-FROM    
-    genre_raw t;
+    
+-- c. SUMMARY TABLES

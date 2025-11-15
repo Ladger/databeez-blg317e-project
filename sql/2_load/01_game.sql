@@ -1,17 +1,22 @@
 -- Responsbility: Berk Özcan
 
--- Foreign Key implementation will be Week 7 change when all tables are present with data
-
-ALTER TABLE Game
-MODIFY COLUMN Publisher_ID INT NULL,
-MODIFY COLUMN Platform_ID  INT NULL,
-MODIFY COLUMN Genre_ID     INT NULL;
-
--- If the entry is "N/A" we are returning NULL for that cell
-INSERT INTO Game (`Name`, `Year`, `Rank`)
-SELECT
+INSERT INTO Game (
     `Name`,
-    CAST(NULLIF(`Year`, 'N/A') AS UNSIGNED),
-    `Rank`
+    `Year`,
+    `Rank`,
+    Publisher_ID,
+    Platform_ID,
+    Genre_ID
+)
+SELECT
+    r.`Name`,
+    CAST(NULLIF(r.`Year`, 'N/A') AS UNSIGNED),
+    r.`Rank`,
+    p.Publisher_ID,
+    pl.Platform_ID,
+    g.Genre_ID
 FROM
-    vgsales_raw;
+    vgsales_raw r
+JOIN Publisher p ON r.Publisher = p.Publisher_Name
+JOIN Platform pl ON r.Platform = pl.Platform_Name
+JOIN Genre g ON r.Genre = g.Genre_Name;
