@@ -1,6 +1,6 @@
 -- Responsibility: Mertcan Kilinc
 
-USE databeez_db;
+USE DatabeeZ_db;
 
 DROP TABLE IF EXISTS Publisher;
 CREATE TABLE Publisher (

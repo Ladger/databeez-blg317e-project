@@ -1,6 +1,5 @@
 -- Responsibility: Mertcan Kilinc
 
-
 USE databeez_db;
 
 INSERT INTO Platform (
