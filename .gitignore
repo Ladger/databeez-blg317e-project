@@ -8,3 +8,12 @@ Thumbs.db
 # Ignore any database credentials
 *.log
 *config.ini
+
+# Sanal Ortam
+venv/
+*.pyc
+
+# Python Bağımlılıkları ve Veriler
+__pycache__/
+*.sqlite
+/data/
