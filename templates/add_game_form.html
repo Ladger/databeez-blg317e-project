@@ -1,12 +1,14 @@
 <!DOCTYPE html>
-<html lang="tr">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Yeni Oyun Ekle - Veritabanı Projesi</title>
+    <title>Add New Game - Database Project</title>
+    <link rel="stylesheet" href="style.css"> 
     <style>
-        body { font-family: Arial, sans-serif; margin: 40px; }
-        .container { max-width: 600px; margin: auto; padding: 20px; border: 1px solid #ccc; border-radius: 8px; }
+        /* Formun kendi iç stilleri */
+        body { font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #f4f4f4; }
+        .container { max-width: 600px; margin: 40px auto; padding: 20px; border: 1px solid #ccc; border-radius: 8px; background-color: white; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); }
         h1 { color: #333; }
         label { display: block; margin-top: 10px; font-weight: bold; }
         input[type="text"], input[type="number"] { width: 100%; padding: 8px; margin-top: 5px; box-sizing: border-box; border: 1px solid #ddd; border-radius: 4px; }
@@ -15,36 +17,54 @@
     </style>
 </head>
 <body>
+    <nav class="toolbar">
+        <div class="table-links">
+            <a href="#" class="nav-link" data-page="welcome">Home</a> 
+            
+            <a href="#" class="nav-link" data-page="table-1">Table 1: Game</a>
+            <a href="#" class="nav-link" data-page="table-2">Table 2: Publisher</a>
+            <a href="#" class="nav-link" data-page="table-3">Table 3: Platform</a>
+            <a href="#" class="nav-link" data-page="table-4">Table 4: Genre</a>
+            <a href="#" class="nav-link" data-page="table-5">Table 5: Sales</a>
+        </div>
+        
+        <div class="add-section">
+            <a href="add_game_form.html" class="nav-link add-button active"> 
+                + Add
+            </a>
+        </div>
+    </nav>
     <div class="container">
-        <h1>🎮 Yeni Oyun Kaydı Ekle</h1>
-        <p>Lütfen Game tablosuna eklemek istediğiniz oyunun detaylarını girin.</p>
+        <h1>🎮 Add New Game Record</h1>
+        <p>Please enter the details of the game you want to add to the **Game** table.</p>
 
         <form method="POST" action="/add_game">
-            
-            <label for="name">Oyun Adı (Name):</label>
+            <label for="name">Game Name (Name):</label>
             <input type="text" id="name" name="game_name" required>
 
-            <label for="year">Çıkış Yılı (Year):</label>
+            <label for="year">Release Year (Year):</label>
             <input type="number" id="year" name="game_year" placeholder="YYYY" min="1950" max="2025">
 
-            <label for="rank">Sıralama (Rank):</label>
+            <label for="rank">Rank:</label>
             <input type="number" id="rank" name="game_rank" required>
 
             <hr style="margin: 20px 0;">
 
-            <p style="font-style: italic;">Aşağıdaki ID'ler, veritabanında zaten var olan kayıtlar olmalıdır.</p>
+            <p style="font-style: italic;">The following IDs must refer to existing records in the database (Foreign Keys).</p>
             
-            <label for="publisher_id">Yayıncı ID (Publisher_ID):</label>
+            <label for="publisher_id">Publisher ID (Publisher_ID):</label>
             <input type="number" id="publisher_id" name="publisher_id" required>
 
             <label for="platform_id">Platform ID (Platform_ID):</label>
             <input type="number" id="platform_id" name="platform_id" required>
             
-            <label for="genre_id">Tür ID (Genre_ID):</label>
+            <label for="genre_id">Genre ID (Genre_ID):</label>
             <input type="number" id="genre_id" name="genre_id" required>
 
-            <button type="submit">Oyunu Veritabanına Ekle</button>
+            <button type="submit">Add Game to Database</button>
         </form>
     </div>
+    
+    <script src="script.js"></script>
 </body>
 </html>
