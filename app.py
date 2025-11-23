@@ -1,7 +1,12 @@
 # app.py
 
 from flask import Flask, request, render_template
-from db_utils.db_connector import add_new_game # Yeni fonksiyonu içe aktar
+from db_utils.db_connector import (
+    add_new_game, 
+    add_new_publisher, 
+    add_new_platform, 
+    add_new_genre
+)
 
 app = Flask(__name__)
 
@@ -27,3 +32,57 @@ def add_game():
             
     # GET isteğinde formu göster
     return render_template('add_game_form.html')
+
+@app.route('/add_publisher', methods=['GET', 'POST'])
+def add_publisher():
+    if request.method == 'POST':
+        try:
+            name = request.form['publisher_name']
+            country = request.form['country']
+            year = int(request.form['year_established'])
+            
+            success = add_new_publisher(name, country, year)
+            
+            if success:
+                return "Yayıncı başarıyla eklendi!"
+            else:
+                return "Hata: Publisher eklenemedi.", 500
+        except ValueError:
+            return "Hata: Yıl bir sayı olmalıdır", 400
+
+    return render_template('add_publisher_form.html')
+
+@app.route('/add_platform', methods=['GET', 'POST'])
+def add_platform():
+    if request.method == 'POST':
+        try:
+            name = request.form['platform_name']
+            manufacturer = request.form['manufacturer']
+            year = int(request.form['release_year'])
+            
+            success = add_new_platform(name, manufacturer, year)
+            
+            if success:
+                return "Platform başarıyla eklendi!"
+            else:
+                return "Hata: Platform eklenemedi.", 500
+        except ValueError:
+            return "ERROR: Yıl bir sayı olmalıdır.", 400
+
+    return render_template('add_platform_form.html')
+
+@app.route('/add_genre', methods=['GET', 'POST'])
+def add_genre():
+    if request.method == 'POST':
+        name = request.form['genre_name']
+        description = request.form['description']
+        example = request.form['example_game']
+        
+        success = add_new_genre(name, description, example)
+        
+        if success:
+            return "Genre başarıyla eklendi!"
+        else:
+            return "Hata: Genre eklenemedi.", 500
+
+    return render_template('add_genre_form.html')

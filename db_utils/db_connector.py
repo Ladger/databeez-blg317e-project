@@ -53,4 +53,114 @@ def add_new_game(name, year, rank, publisher_id, platform_id, genre_id):
         cursor.close()
         conn.close()
 
-# Diğer tablolar için de (Platform, Publisher) benzer fonksiyonlar yazılmalıdır.
+def add_new_sales(game_id, na_sales, eu_sales, jp_sales, other_sales, global_sales):
+    """Sales tablosuna satış verilerini ekler."""
+    
+    conn = get_db_connection()
+    if conn is None:
+        return False
+        
+    cursor = conn.cursor()
+    
+    query = """
+    INSERT INTO Sales (Game_ID, NA_Sales, EU_Sales, JP_Sales, Other_Sales, Global_Sales) 
+    VALUES (%s, %s, %s, %s, %s, %s)
+    """
+    
+    data = (game_id, na_sales, eu_sales, jp_sales, other_sales, global_sales)
+    
+    try:
+        cursor.execute(query, data)
+        conn.commit()
+        return True 
+    except mysql.connector.Error as err:
+        print(f"Satış verisi eklenirken hata oluştu: {err}")
+        conn.rollback()
+        return False
+    finally:
+        cursor.close()
+        conn.close()
+
+def add_new_publisher(publisher_name, country, year_established):
+    """Publisher tablosuna yeni bir yayıncı ekler."""
+    
+    conn = get_db_connection()
+    if conn is None:
+        return False
+        
+    cursor = conn.cursor()
+    
+    query = """
+    INSERT INTO Publisher (Publisher_Name, Country, Year_Established) 
+    VALUES (%s, %s, %s)
+    """
+    
+    data = (publisher_name, country, year_established)
+    
+    try:
+        cursor.execute(query, data)
+        conn.commit()
+        return True 
+    except mysql.connector.Error as err:
+        print(f"Yayıncı eklenirken hata oluştu: {err}")
+        conn.rollback()
+        return False
+    finally:
+        cursor.close()
+        conn.close()
+
+def add_new_platform(platform_name, manufacturer, release_year):
+    """Platform tablosuna yeni bir platform ekler."""
+    
+    conn = get_db_connection()
+    if conn is None:
+        return False
+        
+    cursor = conn.cursor()
+    
+    query = """
+    INSERT INTO Platform (Platform_Name, Manufacturer, Release_Year) 
+    VALUES (%s, %s, %s)
+    """
+    
+    data = (platform_name, manufacturer, release_year)
+    
+    try:
+        cursor.execute(query, data)
+        conn.commit()
+        return True 
+    except mysql.connector.Error as err:
+        print(f"Platform eklenirken hata oluştu: {err}")
+        conn.rollback()
+        return False
+    finally:
+        cursor.close()
+        conn.close()
+
+def add_new_genre(genre_name, description, example_game):
+    """Genre tablosuna yeni bir tür ekler."""
+    
+    conn = get_db_connection()
+    if conn is None:
+        return False
+        
+    cursor = conn.cursor()
+    
+    query = """
+    INSERT INTO Genre (`Genre_Name`, `Description`, `Example_Game`) 
+    VALUES (%s, %s, %s)
+    """
+    
+    data = (genre_name, description, example_game)
+    
+    try:
+        cursor.execute(query, data)
+        conn.commit()
+        return True 
+    except mysql.connector.Error as err:
+        print(f"Tür (Genre) eklenirken hata oluştu: {err}")
+        conn.rollback()
+        return False
+    finally:
+        cursor.close()
+        conn.close()

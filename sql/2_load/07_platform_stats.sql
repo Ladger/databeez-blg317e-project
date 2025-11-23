@@ -1,9 +1,15 @@
 USE DatabeeZ_db;
 
 SET SQL_SAFE_UPDATES = 0;
-
 DELETE FROM Platform_Stats;
 
+INSERT INTO Platform_Stats (
+    Platform_ID,
+    Total_Games,
+    Total_Global_Sales,
+    Avg_Global_Sales,
+    Top_Game_ID
+)
 WITH
     GameSales AS (
         SELECT
@@ -34,7 +40,6 @@ WITH
         SELECT
             Game_ID,
             Platform_ID,
-            Global_Sales,
             ROW_NUMBER() OVER(
                 PARTITION BY Platform_ID
                 ORDER BY Global_Sales DESC, Game_ID ASC
@@ -42,14 +47,6 @@ WITH
         FROM
             GameSales 
     )
-    
-INSERT INTO Platform_Stats (
-    Platform_ID,
-    Total_Games,
-    Total_Global_Sales,
-    Avg_Global_Sales,
-    Top_Game_ID
-)
 SELECT
     agg.Platform_ID,
     agg.Total_Games,
@@ -60,6 +57,5 @@ FROM
     Aggregates AS agg 
 LEFT JOIN
     RankedGames AS rg ON agg.Platform_ID = rg.Platform_ID AND rg.rn = 1;
-
 
 SET SQL_SAFE_UPDATES = 1;
