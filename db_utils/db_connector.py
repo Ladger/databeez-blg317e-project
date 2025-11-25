@@ -83,31 +83,3 @@ def add_new_publisher(publisher_name, country, year_established):
         conn.close()
 
 
-
-def add_new_genre(genre_name, description, example_game):
-    """Genre tablosuna yeni bir tür ekler."""
-    
-    conn = get_db_connection()
-    if conn is None:
-        return False
-        
-    cursor = conn.cursor()
-    
-    query = """
-    INSERT INTO Genre (`Genre_Name`, `Description`, `Example_Game`) 
-    VALUES (%s, %s, %s)
-    """
-    
-    data = (genre_name, description, example_game)
-    
-    try:
-        cursor.execute(query, data)
-        conn.commit()
-        return True 
-    except mysql.connector.Error as err:
-        print(f"Tür (Genre) eklenirken hata oluştu: {err}")
-        conn.rollback()
-        return False
-    finally:
-        cursor.close()
-        conn.close()
