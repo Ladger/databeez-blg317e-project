@@ -54,32 +54,4 @@ def add_new_game(name, year, rank, publisher_id, platform_id, genre_id):
         conn.close()
 
 
-def add_new_publisher(publisher_name, country, year_established):
-    """Publisher tablosuna yeni bir yayıncı ekler."""
-    
-    conn = get_db_connection()
-    if conn is None:
-        return False
-        
-    cursor = conn.cursor()
-    
-    query = """
-    INSERT INTO Publisher (Publisher_Name, Country, Year_Established) 
-    VALUES (%s, %s, %s)
-    """
-    
-    data = (publisher_name, country, year_established)
-    
-    try:
-        cursor.execute(query, data)
-        conn.commit()
-        return True 
-    except mysql.connector.Error as err:
-        print(f"Yayıncı eklenirken hata oluştu: {err}")
-        conn.rollback()
-        return False
-    finally:
-        cursor.close()
-        conn.close()
-
 
