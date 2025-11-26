@@ -1,14 +1,22 @@
-# app.py
+from flask import Flask, request, render_template, jsonify
+from flask_cors import CORS
 
-from flask import Flask, request, render_template
-from db_utils.db_connector import (
-    add_new_game, 
-    add_new_publisher, 
-    add_new_platform, 
-    add_new_genre
-)
+from db_utils.data_access.data_fetch import fetch_table_data
+from db_utils.data_access.game_crud import add_new_game
+from db_utils.data_access.genre_crud import add_new_genre
+from db_utils.data_access.platform_crud import add_new_platform
+from db_utils.data_access.publisher_crud import add_new_publisher
 
 app = Flask(__name__)
+CORS(app)
+
+@app.route('/api/get_data/<table_name>', methods=['GET'])
+def get_data(table_name):
+    limit = request.args.get('limit', default=100, type=int)
+    
+    data = fetch_table_data(table_name, limit)
+    
+    return jsonify(data)
 
 # Örnek bir POST route'u (veri göndermek için)
 @app.route('/add_game', methods=['GET', 'POST'])
@@ -86,3 +94,6 @@ def add_genre():
             return "Hata: Genre eklenemedi.", 500
 
     return render_template('add_genre_form.html')
+
+if __name__ == '__main__':
+    app.run(debug=True)
