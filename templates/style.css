@@ -186,3 +186,20 @@ body {
 .container button:hover { 
     background-color: #4cae4c; 
 }
+
+.detail-btn {
+    text-decoration: none;
+    color: white;
+    background-color: #258eff;
+    font-size: 1.2em;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 50%;
+}
+
+.detail-btn:hover {
+    background-color: #1f74cf;
+}

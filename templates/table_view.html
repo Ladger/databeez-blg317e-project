@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DataBeeZ - View Data</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="navbar-placeholder"></div>
+
+    <main id="content-area">
+        <div class="table-page-container">
+            <div class="table-page-header">
+                <h2 id="page-title" class="table-title-mor">Table Name</h2>
+                
+                <div class="entry-count-dropdown">
+                    <label for="entry-count">Entries Shown:</label>
+                    <select id="entry-count" class="entry-select">
+                        <option value="10">10</option>
+                        <option value="50">50</option>
+                        <option value="100">100</option>
+                        <option value="300" selected>300</option>
+                    </select>
+                </div>
+            </div>
+
+            <div id="table-headers" class="table-headers-row"></div>
+
+            <div id="table-data-area" class="table-data-area"></div>
+        </div>
+    </main>
+
+    <script src="js/config.js"></script> <script src="js/navbar.js"></script> <script src="js/table_logic.js"></script> </body>
+</html>

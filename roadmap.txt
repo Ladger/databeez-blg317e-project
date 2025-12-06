@@ -11,7 +11,6 @@ Welcome Page:
 Table Pages:
 + her tablo sekmesine search bar gelmeli ve bu sayede tüm verilere erişebilmeliyim
 + Columnlara filtre tuşu eklenmeli
-+ Entrylerin yanında veya entrynin kendisi bir buton olarak detailed view pagei açmalı
 
 Add Form Page:
 + Add formlar sadece game için değil publisher, platform ve genre için de olmalı. Sekmelerle birbirinden ayrılmalı
@@ -20,7 +19,8 @@ Add Form Page:
 + Add formunun fonksiyonalitesi bağlanmalı
 
 
-*NEW* DETAILED VIEW PAGE:
+DETAILED VIEW PAGE:
 + Search barda arattığımda bu sayfada entry bilgileri bizi karşılamalı
-+ Bu sayfada update, delete fonksiyonlarına sahip olmalıyım
++ Bu sayfada update, delete butonlarının fonksiyonelitesi eklenmeli
 + Genre ve Publisher için summary table bilgileri de gözükmeli
++ Kritik bilgiler (FK olan bilgiler) kolayca değişmemeli bir dropdown menu ya da contextual bir query search yapmalı ben yazdıkça.
