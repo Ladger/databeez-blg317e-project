@@ -1,7 +1,7 @@
 import mysql.connector
 from ..db_connector import get_db_connection
 
-def fetch_table_data(table_name, limit=100):
+def fetch_table_data(table_name, limit=100, offset=0, sort_by=None, sort_order='ASC'):
     """
     Fetches data with JOINS to replace IDs with actual names for Game and Sales tables.
     """
@@ -18,7 +18,7 @@ def fetch_table_data(table_name, limit=100):
         cursor = conn.cursor(dictionary=True)
         
         if table_name == 'Game':
-            query = """
+            base_query = """
                 SELECT 
                     g.Game_ID, 
                     g.Name, 
@@ -31,7 +31,6 @@ def fetch_table_data(table_name, limit=100):
                 LEFT JOIN Publisher p ON g.Publisher_ID = p.Publisher_ID
                 LEFT JOIN Platform pl ON g.Platform_ID = pl.Platform_ID
                 LEFT JOIN Genre ge ON g.Genre_ID = ge.Genre_ID
-                LIMIT %s
             """
             
         elif table_name == 'Sales':
@@ -46,13 +45,29 @@ def fetch_table_data(table_name, limit=100):
                     s.Global_Sales
                 FROM Sales s
                 LEFT JOIN Game g ON s.Game_ID = g.Game_ID
-                LIMIT %s
             """
             
         else:
             query = f"SELECT * FROM {table_name} LIMIT %s"
         
-        cursor.execute(query, (limit,))
+        safe_order = 'DESC' if str(sort_order).upper() == 'DESC' else 'ASC'
+        
+        
+        if sort_by:
+            order_clause = f" ORDER BY `{sort_by}` {safe_order}"
+        else:
+            if table_name == 'Game':
+                order_clause = " ORDER BY g.`Rank` ASC"
+            elif table_name == 'Sales':
+                order_clause = " ORDER BY s.Global_Sales DESC"
+            else:
+                order_clause = f" ORDER BY {table_name}_ID ASC"
+        
+        limit_clause = " LIMIT %s OFFSET %s"
+
+        final_query = base_query + order_clause + limit_clause
+        
+        cursor.execute(query, (limit, offset))
         result = cursor.fetchall()
         
         return result

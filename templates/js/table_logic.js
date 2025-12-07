@@ -1,3 +1,6 @@
+let currentSortColumn = null;
+let currentSortOrder = 'ASC';
+
 document.addEventListener('DOMContentLoaded', () => {
     // Check if we are on a table page by looking for the URL param
     const urlParams = new URLSearchParams(window.location.search);
@@ -28,6 +31,23 @@ function initializeTablePage(tableId) {
     });
 }
 
+function handleSort(columnKey) {
+    // Aynı sütuna tıklandıysa yönü ters çevir, farklıysa sıfırla
+    if (currentSortColumn === columnKey) {
+        currentSortOrder = (currentSortOrder === 'ASC') ? 'DESC' : 'ASC';
+    } else {
+        currentSortColumn = columnKey;
+        currentSortOrder = 'ASC';
+    }
+
+    // Tabloyu yeni ayarlarla tekrar yükle
+    const tableId = new URLSearchParams(window.location.search).get('id');
+    const limit = document.getElementById('entry-count').value;
+    if (tableId && TABLE_SCHEMAS[tableId]) {
+        fetchAndRenderData(TABLE_SCHEMAS[tableId].title, limit, TABLE_SCHEMAS[tableId]);
+    }
+}
+
 async function fetchAndRenderData(tableName, limit, tableConfig) {
     const dataArea = document.getElementById('table-data-area');
     const headerContainer = document.getElementById('table-headers');
@@ -36,8 +56,13 @@ async function fetchAndRenderData(tableName, limit, tableConfig) {
     dataArea.innerHTML = '<div style="padding:20px; text-align:center;">Loading...</div>';
 
     try {
-        const response = await fetch(`http://127.0.0.1:5000/api/get_data/${tableName}?limit=${limit}`);
+        let url = `http://127.0.0.1:5000/api/get_data/${tableName}?limit=${limit}`;
         
+        if (currentSortColumn) {
+            url += `&sort_by=${currentSortColumn}&order=${currentSortOrder}`;
+        }
+
+        const response = await fetch(url);        
         if (!response.ok) throw new Error(`Server Error: ${response.status}`);
         
         const data = await response.json();
@@ -49,10 +74,25 @@ async function fetchAndRenderData(tableName, limit, tableConfig) {
 
         headerContainer.style.gridTemplateColumns = `repeat(${columns.length}, 1fr) 50px`;
         
-        headerContainer.innerHTML = columns
-            .map(col => `<div class="table-header-cell">${col.label}</div>`)
-            .join('') + '<div></div>';
+        headerContainer.innerHTML = ''; // Temizle
 
+        columns.forEach(col => {
+            const headerCell = document.createElement('div');
+            headerCell.className = 'table-header-cell';
+            headerCell.style.cursor = 'pointer'; // Tıklanabilir yap
+        
+            // Ok işaretini ayarla
+            let arrow = '';
+            if (currentSortColumn === col.key) {
+                arrow = (currentSortOrder === 'ASC') ? ' ⬆️' : ' ⬇️';
+            }
+            headerCell.innerText = col.label + arrow;
+        
+            // Tıklama olayını bağla
+            headerCell.onclick = () => handleSort(col.key);
+        
+            headerContainer.appendChild(headerCell);
+        });
         const rowsHtml = data.map(row => {
             const rowId = row[tableConfig.idKey]; 
 
