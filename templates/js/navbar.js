@@ -12,7 +12,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <a href="table_view.html?id=table-5" class="nav-link" id="nav-table-5">Sales</a>
             </div>
             <div class="add-section">
-                <a href="add_game.html" class="nav-link add-button" id="nav-add">+ Add</a>
+                <a href="add_entry.html" class="nav-link add-button" id="nav-add">+ Add</a>
             </div>
         </nav>
         `;
@@ -27,10 +27,11 @@ function highlightActiveLink() {
     const tableId = urlParams.get('id');
 
     document.querySelectorAll('.nav-link').forEach(link => link.classList.remove('active'));
+    document.querySelector('.add-button')?.classList.remove('active');
 
     if (page === 'index.html' || page === '') {
         document.getElementById('nav-welcome')?.classList.add('active');
-    } else if (page === 'add_game.html') {
+    } else if (page === 'add_entry.html') {
         document.querySelector('.add-button')?.classList.add('active');
     } else if (page === 'table_view.html' && tableId) {
         document.getElementById(`nav-${tableId}`)?.classList.add('active');
