@@ -258,7 +258,7 @@ body {
     font-weight: bold;
     font-size: 0.9em;
 }
-/* Navbar Temel Ayarlar */
+/* Navbar Temel */
 .toolbar {
     background-color: #333;
     overflow: hidden;
@@ -289,6 +289,36 @@ body {
 .nav-link.active {
     background-color: #04AA6D;
     color: white;
+}
+
+/* Dropdown Menü Stilleri */
+.dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    right: 0;
+    background-color: #f9f9f9;
+    min-width: 160px;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    z-index: 10;
+}
+
+.dropdown-content a {
+    color: black;
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+    text-align: left;
+}
+
+.dropdown-content a:hover {background-color: #f1f1f1;}
+
+.dropdown:hover .dropdown-content {
+    display: block;
 }
 /* Arama Kutusu ve Sonuç Listesi için Stil */
 .search-container {

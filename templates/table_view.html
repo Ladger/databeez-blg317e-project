@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DataBeeZ - View Data</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
     <div id="navbar-placeholder"></div>
@@ -31,5 +31,9 @@
         </div>
     </main>
 
-    <script src="js/config.js"></script> <script src="js/navbar.js"></script> <script src="js/table_logic.js"></script> </body>
+    <script src="{{ url_for('static', filename='js/config.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/table_logic.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/navbar.js') }}"></script>
+   
+   
 </html>

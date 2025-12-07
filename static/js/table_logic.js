@@ -56,13 +56,14 @@ async function fetchAndRenderData(tableName, limit, tableConfig) {
     dataArea.innerHTML = '<div style="padding:20px; text-align:center;">Loading...</div>';
 
     try {
-        let url = `http://127.0.0.1:5000/api/get_data/${tableName}?limit=${limit}`;
+        // KRİTİK DÜZELTME: Hostname ve port kaldırıldı. Mutlak yol kullanılıyor.
+        let url = `/api/get_data/${tableName}?limit=${limit}`; 
         
         if (currentSortColumn) {
             url += `&sort_by=${currentSortColumn}&order=${currentSortOrder}`;
         }
 
-        const response = await fetch(url);        
+        const response = await fetch(url);      
         if (!response.ok) throw new Error(`Server Error: ${response.status}`);
         
         const data = await response.json();
@@ -93,7 +94,7 @@ async function fetchAndRenderData(tableName, limit, tableConfig) {
         
             headerContainer.appendChild(headerCell);
         });
-        const rowsHtml = data.map(row => {
+const rowsHtml = data.map(row => {
             const rowId = row[tableConfig.idKey]; 
 
             const cells = columns.map(col => {
@@ -101,9 +102,12 @@ async function fetchAndRenderData(tableName, limit, tableConfig) {
                 return `<div class="table-data-cell" title="${cellData}">${cellData}</div>`;
             }).join('');
             
+            // DÜZELTME BURADA:
+            // Eski Hali: href="detailed_view.html?table=${tableName}&id=${rowId}"
+            // Yeni Hali: Flask rotasına uygun yapı (/detailed_view/TabloAdi/ID)
             const actionCell = `
                 <div class="table-data-cell" style="display:flex; justify-content:center; align-items:center;">
-                    <a href="detailed_view.html?table=${tableName}&id=${rowId}" class="detail-btn">
+                    <a href="/detailed_view/${tableName}/${rowId}" class="detail-btn">
                         ➜
                     </a>
                 </div>
@@ -115,7 +119,7 @@ async function fetchAndRenderData(tableName, limit, tableConfig) {
             </div>`;
         }).join('');
 
-        dataArea.innerHTML = rowsHtml;
+    dataArea.innerHTML = rowsHtml;
 
     } catch (error) {
         console.error('Error fetching data:', error);

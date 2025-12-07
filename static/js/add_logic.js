@@ -13,7 +13,9 @@ function renderTabs(activeType) {
         const schema = FORM_SCHEMAS[key];
         const link = document.createElement('a');
         
-        link.href = `add_entry.html?type=${key}`;
+        // KRİTİK DÜZELTME: Linki /add_entry Flask rotasına yönlendiriyoruz
+        link.href = `/add_entry?type=${key}`; 
+        
         link.className = `form-tab-link ${key === activeType ? 'active' : ''}`;
         
         // "Add New " kısmını temizle
