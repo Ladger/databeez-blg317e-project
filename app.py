@@ -12,10 +12,21 @@ CORS(app)
 
 @app.route('/api/get_data/<table_name>', methods=['GET'])
 def get_data(table_name):
+    page = request.args.get('page', 1, type=int)
     limit = request.args.get('limit', default=100, type=int)
     
-    data = fetch_table_data(table_name, limit)
-    
+    sort_by = request.args.get('sort_by', default=None, type=str)
+    sort_order = request.args.get('order', default='ASC', type=str)
+
+    offset = (page - 1) * limit
+
+    data = fetch_table_data(
+        table_name, 
+        limit=limit, 
+        offset=offset, 
+        sort_by=sort_by, 
+        sort_order=sort_order
+    )    
     return jsonify(data)
 
 # Örnek bir POST route'u (veri göndermek için)
