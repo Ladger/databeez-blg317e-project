@@ -2,6 +2,8 @@ from flask import Flask, request, render_template, jsonify
 from flask_cors import CORS
 
 from db_utils.data_access.data_fetch import fetch_table_data
+from db_utils.data_access.data_fetch import search_all_tables
+from db_utils.data_access.data_fetch import get_record_by_id
 from db_utils.data_access.game_crud import add_new_game
 from db_utils.data_access.genre_crud import add_new_genre
 from db_utils.data_access.platform_crud import add_new_platform
@@ -9,6 +11,55 @@ from db_utils.data_access.publisher_crud import add_new_publisher
 
 app = Flask(__name__)
 CORS(app)
+
+# 1. YENİ ROTA: Welcome Page (Arama Çubuğu burada gösterilecek)
+@app.route('/')
+def index():
+    return render_template('index.html')
+
+# 2. Arama API'si (JavaScript buraya istek atacak)
+@app.route('/autocomplete', methods=['GET'])
+def autocomplete():
+    term = request.args.get('term', '')
+    
+    # 2 karakterden kısaysa boş dön (DB'yi yorma)
+    if len(term) < 2:
+        return jsonify([])
+
+    # Veritabanında ara
+    results = search_all_tables(term, limit=5)
+    return jsonify(results)
+
+# 3. YENİ ROTA: Detay Sayfası (Kullanıcı arama sonucuna tıkladığında yönlendirilir)
+@app.route('/detailed_view/<entity_type>/<int:entity_id>')
+def detailed_view(entity_type, entity_id):
+    # Bu sayfada, entity_type'a (Game, Publisher vb.) göre
+    # data_fetch.py'den ilgili detay çekme fonksiyonu çağrılmalıdır.
+    
+    # Örnek: if entity_type == 'Game': data = fetch_game_details(entity_id)
+    
+    # Şimdilik, sadece sayfayı render edelim
+    context = {
+        'entity_type': entity_type,
+        'entity_id': entity_id,
+        'title': f"{entity_type} Detay Sayfası (ID: {entity_id})"
+    }
+    return render_template('detailed_view.html', **context)
+
+# Yeni Rota ekleyin:
+@app.route('/api/get_record/<table_name>/<int:record_id>')
+def api_get_record(table_name, record_id):
+    data = get_record_by_id(table_name, record_id)
+    if data:
+        return jsonify(data)
+    else:
+        return jsonify({'error': 'Record not found'}), 404
+    
+
+@app.route('/table_view')
+def table_view():
+    # Sadece HTML şablonunu döndürür, veriyi JS ile /api/get_data/... üzerinden çeker
+    return render_template('table_view.html')
 
 @app.route('/api/get_data/<table_name>', methods=['GET'])
 def get_data(table_name):
@@ -33,23 +84,24 @@ def get_data(table_name):
 @app.route('/add_game', methods=['GET', 'POST'])
 def add_game():
     if request.method == 'POST':
-        # Formdan gelen verileri al
-        name = request.form['game_name']
-        year = request.form['game_year']
-        rank = request.form['game_rank']  # Eksik Alan
-        publisher_id = request.form['publisher_id'] # Eksik Alan
-        platform_id = request.form['platform_id'] # Eksik Alan
-        genre_id = request.form['genre_id'] # Eksik Alan
-        
-        # Veriyi veritabanına ekle
-        success = add_new_game(name, year, rank, publisher_id, platform_id, genre_id) # Diğer parametreler buraya
-        
-        if success:
-            return "Oyun başarıyla eklendi!"
-        else:
-            return "Hata: Oyun eklenemedi.", 500
+        try:
+            # Kritik: Sayısal değerleri int'e dönüştür ve hata yakalama bloğuna al
+            name = request.form['game_name']
+            year = int(request.form['game_year'])
+            rank = int(request.form['game_rank']) 
+            publisher_id = int(request.form['publisher_id']) 
+            platform_id = int(request.form['platform_id']) 
+            genre_id = int(request.form['genre_id']) 
             
-    # GET isteğinde formu göster
+            success = add_new_game(name, year, rank, publisher_id, platform_id, genre_id)
+            
+            if success:
+                return "Oyun başarıyla eklendi!"
+            else:
+                return "Hata: Oyun eklenemedi (Veritabanı Hatası).", 500
+        except ValueError:
+            return "Hata: Yıl, Sıralama ve ID alanları geçerli sayılar olmalıdır.", 400
+        
     return render_template('add_game_form.html')
 
 @app.route('/add_publisher', methods=['GET', 'POST'])

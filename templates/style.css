@@ -258,3 +258,72 @@ body {
     font-weight: bold;
     font-size: 0.9em;
 }
+/* Navbar Temel Ayarlar */
+.toolbar {
+    background-color: #333;
+    overflow: hidden;
+    display: flex;
+    justify-content: space-between;
+    padding: 0 20px;
+    align-items: center;
+}
+
+.nav-link {
+    float: left;
+    display: block;
+    color: #f2f2f2;
+    text-align: center;
+    padding: 14px 16px;
+    text-decoration: none;
+    font-size: 17px;
+    border: none;
+    background: none;
+    cursor: pointer;
+}
+
+.nav-link:hover, .dropdown:hover .dropbtn {
+    background-color: #ddd;
+    color: black;
+}
+
+.nav-link.active {
+    background-color: #04AA6D;
+    color: white;
+}
+/* Arama Kutusu ve Sonuç Listesi için Stil */
+.search-container {
+    position: relative;
+    width: 100%;
+    max-width: 500px;
+    margin: 30px auto;
+}
+#search-input {
+    width: 100%;
+    padding: 12px;
+    font-size: 16px;
+    border: 2px solid #ccc;
+    border-radius: 5px;
+    box-sizing: border-box; /* Padding taşmasını önler */
+}
+#search-results {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    border: 1px solid #ccc;
+    border-top: none;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    z-index: 999;
+}
+.search-item {
+    padding: 10px;
+    border-bottom: 1px solid #eee;
+    cursor: pointer;
+    text-align: left;
+}
+.search-item:hover {
+    background-color: #f1f1f1;
+}

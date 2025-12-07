@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Detailed View - DataBeeZ</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <style>
         .detail-container { max-width: 800px; margin: 40px auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
         .detail-header { border-bottom: 2px solid #007bff; padding-bottom: 15px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }
@@ -47,9 +47,12 @@
             </div>
         </div>
     </main>
-
-    <script src="js/config.js"></script>
-    <script src="js/navbar.js"></script>
-    <script src="js/detail_logic.js"></script>
+    <script>
+        const CURRENT_ENTITY_TYPE = "{{ entity_type }}";
+        const CURRENT_ENTITY_ID = "{{ entity_id }}";
+    </script>
+    <script src="{{ url_for('static', filename='js/navbar.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/detail_logic.js') }}"></script>
+    
 </body>
 </html>

@@ -1,23 +1,89 @@
 <!DOCTYPE html>
-<html lang="en"> 
+
+<html lang="en">
+
 <head>
+
     <meta charset="UTF-8">
+
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DataBeeZ - Welcome</title> 
-    <link rel="stylesheet" href="style.css">
+
+    <title>DataBeeZ - Welcome</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    
+    <style>
+        .search-container {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 30px;
+            width: 100%;
+        }
+        #search-input {
+            padding: 12px;
+            width: 90%; 
+            max-width: 500px;
+            font-size: 1.1em;
+            border: 2px solid #ccc;
+            border-radius: 5px;
+            outline: none;
+        }
+        #search-results {
+            position: absolute;
+            top: 50px;
+            width: 90%;
+            max-width: 500px;
+            background: white;
+            border: 1px solid #ddd;
+            border-top: none; 
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            z-index: 1000;
+            border-bottom-left-radius: 5px;
+            border-bottom-right-radius: 5px;
+        }
+        .search-item {
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+            text-align: left;
+        }
+        .search-item:hover {
+            background-color: #f0f0f0;
+        }
+    </style>
+
 </head>
+
 <body>
+
     <div id="navbar-placeholder"></div>
 
-    <main id="content-area">
+
+<main id="content-area">
         <div class="welcome-text">
             Welcome!
         </div>
+
+        <div class="search-container">
+            <input type="text" id="search-input" placeholder="Oyun, Yayıncı veya Platform ara..." autocomplete="off">
+            <ul id="search-results"></ul>
+        </div>
+
         <p style="text-align: center; font-size: 1.2em; margin-top: 20px;">
             Click on one of the links above to view the Database Tables.
         </p>
     </main>
+    <script src="{{ url_for('static', filename='js/navbar.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/autocomplete.js') }}"></script>
 
-    <script src="js/navbar.js"></script>
+
+    
+
 </body>
+
 </html>

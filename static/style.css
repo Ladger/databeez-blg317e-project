@@ -1,0 +1,329 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f4;
+}
+
+#content-area {
+    margin: 20px auto;
+    padding: 20px;
+    width: 90%;
+    min-height: 500px;
+    background-color: white;
+    border: 1px solid #ccc;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: white;
+    padding: 10px 20px;
+    border-bottom: 2px solid red;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05); 
+}
+
+.table-links {
+    display: flex;
+    gap: 15px;
+}
+
+.nav-link {
+    text-decoration: none;
+    color: #333; 
+    padding: 5px 10px;
+    font-size: 14px;
+    border-bottom: 1px solid #333; 
+    transition: all 0.2s;
+}
+
+.nav-link:hover {
+    color: #007bff;
+    border-bottom: 1px solid #007bff;
+}
+
+.nav-link.active {
+    border: 1px solid red; 
+    border-bottom: 3px solid red;
+    background-color: #ffebeb; 
+    color: #d90000;
+    font-weight: bold;
+    border-radius: 4px;
+    padding: 5px 10px;
+}
+
+.add-button.active {
+    border: 1px solid white;
+    background-color: #1e7e34;
+}
+
+.add-section {
+    background-color: #28a745;
+    padding: 5px 10px;
+    border-radius: 4px;
+}
+
+.add-button {
+    color: white;
+    font-weight: bold;
+    border-bottom: none;
+}
+
+.add-button:hover {
+    background-color: #218838;
+}
+
+.welcome-text {
+    text-align: center;
+    font-size: 2.5em;
+    color: #555;
+    margin-top: 50px;
+    font-family: cursive, sans-serif; 
+}
+
+.table-page-container {
+    padding: 10px;
+}
+
+.table-page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.table-title-mor {
+    font-size: 1.8em;
+    color: purple;
+    margin: 0;
+    border-bottom: 1px solid purple;
+    padding-bottom: 5px;
+}
+
+.entry-count-dropdown select {
+    padding: 5px 10px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+}
+
+.table-headers-row {
+    display: grid;
+    font-weight: bold;
+    background-color: #f0f0f0;
+    border-bottom: 2px solid #ccc;
+    padding: 10px 0;
+}
+
+.table-header-cell {
+    padding: 5px 10px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.table-entry {
+    display: grid;
+    border-bottom: 3px solid #007bff;
+    margin-top: 10px;
+    padding: 5px 0;
+    background-color: #f9f9ff;
+    transition: background-color 0.2s;
+}
+
+.table-entry:hover {
+    background-color: #e6f7ff;
+}
+
+.table-data-cell {
+    padding: 5px 10px;
+    font-size: 0.9em;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.container { 
+    max-width: 600px; 
+    margin: 20px auto; 
+    padding: 20px; 
+    border: 1px solid #ddd; 
+    border-radius: 8px;
+    background-color: #fff;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+.container h1 { 
+    color: #333; 
+    border-bottom: 1px dashed #ccc;
+    padding-bottom: 10px;
+}
+.container label { 
+    display: block; 
+    margin-top: 15px; 
+    font-weight: bold; 
+}
+.container input[type="text"], 
+.container input[type="number"] { 
+    width: 100%; 
+    padding: 10px; 
+    margin-top: 5px; 
+    box-sizing: border-box; 
+    border: 1px solid #ccc; 
+    border-radius: 4px; 
+    font-size: 1em;
+}
+.container button { 
+    background-color: #5cb85c; 
+    color: white; 
+    padding: 10px 15px; 
+    border: none; 
+    border-radius: 4px; 
+    cursor: pointer; 
+    margin-top: 25px; 
+    font-size: 1.1em;
+}
+.container button:hover { 
+    background-color: #4cae4c; 
+}
+
+.detail-btn {
+    text-decoration: none;
+    color: white;
+    background-color: #258eff;
+    font-size: 1.2em;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 50%;
+}
+
+.detail-btn:hover {
+    background-color: #1f74cf;
+}
+
+/* Form Tab Bars */
+.form-tabs {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+    background-color: #eee;
+    padding: 10px;
+    border-radius: 8px;
+    gap: 10px;
+}
+
+.form-tab-link {
+    text-decoration: none;
+    color: #555;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-weight: bold;
+    transition: background-color 0.2s, color 0.2s;
+    background-color: white;
+    border: 1px solid #ddd;
+}
+
+.form-tab-link:hover {
+    background-color: #e2e6ea;
+    color: #333;
+}
+
+.form-tab-link.active {
+    background-color: #007bff;
+    color: white;
+    border-color: #007bff;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+/* Form içi ayırıcı çizgi */
+.form-separator {
+    margin: 30px 0 15px 0;
+    border: 0;
+    border-top: 1px dashed #ccc;
+    position: relative;
+    height: 1em;
+}
+
+.form-separator-text {
+    position: absolute;
+    top: -12px;
+    left: 0;
+    background-color: #fff;
+    padding-right: 10px;
+    font-style: italic;
+    color: #007bff;
+    font-weight: bold;
+    font-size: 0.9em;
+}
+/* Navbar Temel Ayarlar */
+.toolbar {
+    background-color: #333;
+    overflow: hidden;
+    display: flex;
+    justify-content: space-between;
+    padding: 0 20px;
+    align-items: center;
+}
+
+.nav-link {
+    float: left;
+    display: block;
+    color: #f2f2f2;
+    text-align: center;
+    padding: 14px 16px;
+    text-decoration: none;
+    font-size: 17px;
+    border: none;
+    background: none;
+    cursor: pointer;
+}
+
+.nav-link:hover, .dropdown:hover .dropbtn {
+    background-color: #ddd;
+    color: black;
+}
+
+.nav-link.active {
+    background-color: #04AA6D;
+    color: white;
+}
+/* Arama Kutusu ve Sonuç Listesi için Stil */
+.search-container {
+    position: relative;
+    width: 100%;
+    max-width: 500px;
+    margin: 30px auto;
+}
+#search-input {
+    width: 100%;
+    padding: 12px;
+    font-size: 16px;
+    border: 2px solid #ccc;
+    border-radius: 5px;
+    box-sizing: border-box; /* Padding taşmasını önler */
+}
+#search-results {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    border: 1px solid #ccc;
+    border-top: none;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    z-index: 999;
+}
+.search-item {
+    padding: 10px;
+    border-bottom: 1px solid #eee;
+    cursor: pointer;
+    text-align: left;
+}
+.search-item:hover {
+    background-color: #f1f1f1;
+}
