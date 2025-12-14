@@ -3,7 +3,7 @@ from flask_cors import CORS
 
 from db_utils.db_connector import get_db_connection
 from db_utils.data_access.data_fetch import fetch_table_data, search_all_tables, get_record_by_id
-from db_utils.data_access.game_crud import add_new_game
+from db_utils.data_access.game_crud import add_new_game, update_all_game_ranks
 from db_utils.data_access.sales_crud import add_new_sales
 from db_utils.data_access.genre_crud import add_new_genre
 from db_utils.data_access.platform_crud import add_new_platform
@@ -121,23 +121,20 @@ def add_game():
         gen_id_str = request.form.get('genre_id', '')
 
         if not pub_id_str or not plat_id_str or not gen_id_str:
-            return "Error: Please make sure to SELECT Publisher, Platform, and Genre from the dropdown list.", 400
+            return jsonify({'success': False, 'message': "Error: Please select Publisher, Platform, and Genre from dropdowns."}), 400
 
         publisher_id = int(pub_id_str)
         platform_id = int(plat_id_str)
         genre_id = int(gen_id_str)
-
         name = request.form['game_name']
+        year = int(request.form.get('game_year') or 0)
+        temp_rank = 999999 
         
-        try:
-            year = int(request.form.get('game_year') or 0)
-            rank = int(request.form.get('game_rank') or 0)
-        except ValueError:
-             return "Error: Year and Rank must be valid numbers.", 400
-
-        new_game_id = add_new_game(name, year, rank, publisher_id, platform_id, genre_id)
+        from db_utils.data_access.game_crud import add_new_game, update_all_game_ranks
+        new_game_id = add_new_game(name, year, temp_rank, publisher_id, platform_id, genre_id)
 
         if new_game_id:
+            from db_utils.data_access.sales_crud import add_new_sales
             na = float(request.form.get('na_sales') or 0)
             eu = float(request.form.get('eu_sales') or 0)
             jp = float(request.form.get('jp_sales') or 0)
@@ -148,62 +145,88 @@ def add_game():
             sales_success = add_new_sales(new_game_id, na, eu, jp, other, global_sales)
             
             if sales_success:
-                return "Game and Sales added successfully!"
+                # 4. Update Ranks
+                rank_success = update_all_game_ranks()
+                if rank_success:
+                    return jsonify({'success': True, 'message': "Success! Game added and Ranks updated."})
+                else:
+                    return jsonify({'success': True, 'message': "Game added, but Rank calculation failed."}) # Still counted as success
             else:
-                return "Game added, but Sales data failed to save.", 500
+                return jsonify({'success': False, 'message': "Game added, but Sales data failed."}), 500
         else:
-            return "Failed to add Game (Database Error).", 500
+            return jsonify({'success': False, 'message': "Failed to add Game."}), 500
 
     except ValueError as e:
-        return f"System Error: {str(e)}", 400
+        return jsonify({'success': False, 'message': f"System Error: {str(e)}"}), 400
 
 @app.route('/add_publisher', methods=['POST'])
 def add_publisher():
-    if request.method == 'POST':
-        try:
-            name = request.form['publisher_name']
-            country = request.form['country']
-            year = int(request.form['year_established'])
-            
-            success = add_new_publisher(name, country, year)
-            
-            if success:
-                return "Yayıncı başarıyla eklendi!"
-            else:
-                return "Hata: Publisher eklenemedi.", 500
-        except ValueError:
-            return "Hata: Yıl bir sayı olmalıdır", 400
+    try:
+        # 1. Get Data
+        name = request.form.get('publisher_name')
+        country = request.form.get('country', '')
+        year_val = request.form.get('year_established')
+        year = int(year_val) if year_val else 0
+
+        if not name:
+             return jsonify({'success': False, 'message': "Error: Publisher Name is required."}), 400
+
+        from db_utils.data_access.publisher_crud import add_new_publisher
+        success = add_new_publisher(name, country, year)
+
+        if success:
+            return jsonify({'success': True, 'message': f"Publisher '{name}' added successfully!"})
+        else:
+            return jsonify({'success': False, 'message': "Database Error: Could not add publisher."}), 500
+
+    except ValueError:
+        return jsonify({'success': False, 'message': "Error: Year must be a valid number."}), 400
+
 
 @app.route('/add_platform', methods=['POST'])
 def add_platform():
-    if request.method == 'POST':
-        try:
-            name = request.form['platform_name']
-            manufacturer = request.form['manufacturer']
-            year = int(request.form['release_year'])
-            
-            success = add_new_platform(name, manufacturer, year)
-            
-            if success:
-                return "Platform başarıyla eklendi!"
-            else:
-                return "Hata: Platform eklenemedi.", 500
-        except ValueError:
-            return "ERROR: Yıl bir sayı olmalıdır.", 400
+    try:
+        name = request.form.get('platform_name')
+        manufacturer = request.form.get('manufacturer', '')
+        
+        year_val = request.form.get('release_year')
+        year = int(year_val) if year_val else 0
+
+        if not name:
+             return jsonify({'success': False, 'message': "Error: Platform Name is required."}), 400
+
+        from db_utils.data_access.platform_crud import add_new_platform
+        success = add_new_platform(name, manufacturer, year)
+
+        if success:
+            return jsonify({'success': True, 'message': f"Platform '{name}' added successfully!"})
+        else:
+            return jsonify({'success': False, 'message': "Database Error: Could not add platform."}), 500
+
+    except ValueError:
+        return jsonify({'success': False, 'message': "Error: Year must be a valid number."}), 400
+
 
 @app.route('/add_genre', methods=['POST'])
 def add_genre():
-    if request.method == 'POST':
-        name = request.form['genre_name']
-        description = request.form['description']
-        example = request.form['example_game']
-        
+    try:
+        name = request.form.get('genre_name')
+        description = request.form.get('description', '')
+        example = request.form.get('example_game', '')
+
+        if not name:
+             return jsonify({'success': False, 'message': "Error: Genre Name is required."}), 400
+
+        from db_utils.data_access.genre_crud import add_new_genre
         success = add_new_genre(name, description, example)
-        
+
         if success:
-            return "Genre başarıyla eklendi!"
+            return jsonify({'success': True, 'message': f"Genre '{name}' added successfully!"})
         else:
-            return "Hata: Genre eklenemedi.", 500
+            return jsonify({'success': False, 'message': "Database Error: Could not add genre."}), 500
+
+    except Exception as e:
+        return jsonify({'success': False, 'message': f"System Error: {str(e)}"}), 500
 
 if __name__ == '__main__':
     app.run(debug=True)

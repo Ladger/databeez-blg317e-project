@@ -5,22 +5,12 @@
 + Websitesi görselliği iyileştirilmeli
 + Websitesi UX konusunda çalışılmalı
 
-Welcome Page:
-+ Search bar eklenmeli
 
 Table Pages:
-+ her tablo sekmesine search bar gelmeli ve bu sayede tüm verilere erişebilmeliyim
 + Columnlara filtre tuşu eklenmeli
-
-Add Form Page:
-+ Add formlar sadece game için değil publisher, platform ve genre için de olmalı. Sekmelerle birbirinden ayrılmalı
-+ Game formunda ekstra olarak satış verileri de girilmeli
-+ Formda benden hangi fk olduğunu istememeli GÜVENLİ DEĞİL, bunun yerine bir dropdown menüsü veya farklı bir şekilde ekleyebilecekleri fkların ismini görebilimeliyim
-+ Add formunun fonksiyonalitesi bağlanmalı
 
 
 DETAILED VIEW PAGE:
-+ Search barda arattığımda bu sayfada entry bilgileri bizi karşılamalı
 + Bu sayfada update, delete butonlarının fonksiyonelitesi eklenmeli
 + Genre ve Publisher için summary table bilgileri de gözükmeli
 + Kritik bilgiler (FK olan bilgiler) kolayca değişmemeli bir dropdown menu ya da contextual bir query search yapmalı ben yazdıkça.
