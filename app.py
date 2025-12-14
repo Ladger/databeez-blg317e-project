@@ -54,14 +54,29 @@ def table_view():
 
 @app.route('/api/get_data/<table_name>', methods=['GET'])
 def get_data(table_name):
+    # Get Existing Parameters (Keeping them as is)
     page = request.args.get('page', 1, type=int)
-    limit = request.args.get('limit', default=100, type=int)
+    limit = request.args.get('limit', default=100, type=int) # Your preference: 100
     sort_by = request.args.get('sort_by', default=None, type=str)
     sort_order = request.args.get('order', default='ASC', type=str)
+    
+    # Capture Search Parameter 
+    search_query = request.args.get('search', default=None, type=str)
+    
+    # Calculate Offset 
     offset = (page - 1) * limit
-    data = fetch_table_data(table_name, limit=limit, offset=offset, sort_by=sort_by, sort_order=sort_order)
+    
+    # Call Database Function
+    data = fetch_table_data(
+        table_name, 
+        limit=limit, 
+        offset=offset, 
+        sort_by=sort_by, 
+        sort_order=sort_order,
+        search_query=search_query # <-- Passing the new search capability
+    )
+    
     return jsonify(data)
-
 
 # 5. CREATE POST Endpoints (SADECE POST Metodu Kaldı)
 # -------------------------------------------------------------

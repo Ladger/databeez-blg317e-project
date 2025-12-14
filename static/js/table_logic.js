@@ -1,8 +1,12 @@
+// static/js/table_logic.js
+
+// 1. GLOBAL VARIABLES
 let currentSortColumn = null;
 let currentSortOrder = 'ASC';
+let currentSearchQuery = ''; // NEW: Variable to hold the search term
 
 document.addEventListener('DOMContentLoaded', () => {
-    // Check if we are on a table page by looking for the URL param
+    // Get table ID from URL when page loads (e.g., ?id=game)
     const urlParams = new URLSearchParams(window.location.search);
     const tableId = urlParams.get('id');
 
@@ -14,40 +18,67 @@ document.addEventListener('DOMContentLoaded', () => {
 function initializeTablePage(tableId) {
     const tableInfo = TABLE_SCHEMAS[tableId];
     
-    // Set Titles dynamically
+    // Set titles dynamically
     const titleElement = document.getElementById('page-title');
     if(titleElement) titleElement.innerText = tableInfo.title;
     
     const countElement = document.getElementById('entry-count');
     if(countElement) countElement.setAttribute('data-table', tableInfo.title);
 
-    // Initial Fetch
-    // We pass the tableInfo object itself so we have access to columns AND idKey
+    // Initial Load
     fetchAndRenderData(tableInfo.title, countElement.value, tableInfo);
 
-    // Listener for limit change
+    // Listen for limit changes
     countElement.addEventListener('change', (e) => {
         fetchAndRenderData(tableInfo.title, e.target.value, tableInfo);
     });
 }
 
-function handleSort(columnKey) {
-    // Aynı sütuna tıklandıysa yönü ters çevir, farklıysa sıfırla
-    if (currentSortColumn === columnKey) {
-        currentSortOrder = (currentSortOrder === 'ASC') ? 'DESC' : 'ASC';
-    } else {
-        currentSortColumn = columnKey;
-        currentSortOrder = 'ASC';
-    }
+// --- NEW SEARCH FUNCTIONS ---
 
-    // Tabloyu yeni ayarlarla tekrar yükle
-    const tableId = new URLSearchParams(window.location.search).get('id');
+function handleSearch() {
+    const input = document.getElementById('search-input');
+    if (input) {
+        currentSearchQuery = input.value.trim(); // Trim whitespace
+        refreshCurrentTable(); // Refresh the table
+    }
+}
+
+function clearSearch() {
+    const input = document.getElementById('search-input');
+    if (input) {
+        input.value = ''; // Visually clear the input box
+    }
+    currentSearchQuery = ''; // Clear the memory
+    refreshCurrentTable(); // Refresh the table
+}
+
+// Helper Function: Refreshes the table with current settings (Sort + Search + Limit)
+function refreshCurrentTable() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const tableId = urlParams.get('id');
     const limit = document.getElementById('entry-count').value;
+
     if (tableId && TABLE_SCHEMAS[tableId]) {
         fetchAndRenderData(TABLE_SCHEMAS[tableId].title, limit, TABLE_SCHEMAS[tableId]);
     }
 }
 
+// --- UPDATED SORT FUNCTION ---
+function handleSort(columnKey) {
+    if (currentSortColumn === columnKey) {
+        // Toggle order if clicking the same column
+        currentSortOrder = (currentSortOrder === 'ASC') ? 'DESC' : 'ASC';
+    } else {
+        // Reset to ASC if clicking a new column
+        currentSortColumn = columnKey;
+        currentSortOrder = 'ASC';
+    }
+    // Using the helper function instead of rewriting code
+    refreshCurrentTable();
+}
+
+// --- FETCH AND RENDER FUNCTION ---
 async function fetchAndRenderData(tableName, limit, tableConfig) {
     const dataArea = document.getElementById('table-data-area');
     const headerContainer = document.getElementById('table-headers');
@@ -56,11 +87,17 @@ async function fetchAndRenderData(tableName, limit, tableConfig) {
     dataArea.innerHTML = '<div style="padding:20px; text-align:center;">Loading...</div>';
 
     try {
-        // KRİTİK DÜZELTME: Hostname ve port kaldırıldı. Mutlak yol kullanılıyor.
+        // BUILD URL
         let url = `/api/get_data/${tableName}?limit=${limit}`; 
         
+        // Add sorting
         if (currentSortColumn) {
             url += `&sort_by=${currentSortColumn}&order=${currentSortOrder}`;
+        }
+
+        // NEW: Add search
+        if (currentSearchQuery) {
+            url += `&search=${encodeURIComponent(currentSearchQuery)}`;
         }
 
         const response = await fetch(url);      
@@ -68,33 +105,41 @@ async function fetchAndRenderData(tableName, limit, tableConfig) {
         
         const data = await response.json();
 
+        // Alert if no data
         if (!data || data.length === 0) {
             dataArea.innerHTML = '<div style="padding:20px; text-align:center;">No records found.</div>';
+            // Not clearing headers so the user can still see columns (optional)
+            headerContainer.innerHTML = ''; 
             return;
         }
 
+        // RENDER HEADERS
         headerContainer.style.gridTemplateColumns = `repeat(${columns.length}, 1fr) 50px`;
-        
-        headerContainer.innerHTML = ''; // Temizle
+        headerContainer.innerHTML = ''; 
 
         columns.forEach(col => {
             const headerCell = document.createElement('div');
             headerCell.className = 'table-header-cell';
-            headerCell.style.cursor = 'pointer'; // Tıklanabilir yap
+            headerCell.style.cursor = 'pointer'; 
         
-            // Ok işaretini ayarla
+            // Arrow icon
             let arrow = '';
             if (currentSortColumn === col.key) {
                 arrow = (currentSortOrder === 'ASC') ? ' ⬆️' : ' ⬇️';
             }
             headerCell.innerText = col.label + arrow;
         
-            // Tıklama olayını bağla
+            // Click event
             headerCell.onclick = () => handleSort(col.key);
         
             headerContainer.appendChild(headerCell);
         });
-const rowsHtml = data.map(row => {
+
+        // Empty header for action column
+        headerContainer.appendChild(document.createElement('div'));
+
+        // RENDER ROWS
+        const rowsHtml = data.map(row => {
             const rowId = row[tableConfig.idKey]; 
 
             const cells = columns.map(col => {
@@ -102,9 +147,7 @@ const rowsHtml = data.map(row => {
                 return `<div class="table-data-cell" title="${cellData}">${cellData}</div>`;
             }).join('');
             
-            // DÜZELTME BURADA:
-            // Eski Hali: href="detailed_view.html?table=${tableName}&id=${rowId}"
-            // Yeni Hali: Flask rotasına uygun yapı (/detailed_view/TabloAdi/ID)
+            // YOUR ORIGINAL LINK STRUCTURE (PRESERVED)
             const actionCell = `
                 <div class="table-data-cell" style="display:flex; justify-content:center; align-items:center;">
                     <a href="/detailed_view/${tableName}/${rowId}" class="detail-btn">
@@ -119,7 +162,7 @@ const rowsHtml = data.map(row => {
             </div>`;
         }).join('');
 
-    dataArea.innerHTML = rowsHtml;
+        dataArea.innerHTML = rowsHtml;
 
     } catch (error) {
         console.error('Error fetching data:', error);

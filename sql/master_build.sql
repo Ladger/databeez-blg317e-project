@@ -137,28 +137,28 @@ CREATE TABLE Platform_Stats(
 --          STEP 2: LOADING DATA
 -- ----------------------------------------------
 
-LOAD DATA LOCAL INFILE 'D:/databeez-blg317e-project/data/vgsales.csv' -- Kendi file locationızı girin 
+LOAD DATA LOCAL INFILE '/Users/mertcankilinc/Documents/GitHub/databeez-blg317e-project/data/vgsales.csv' -- Kendi file locationızı girin 
 INTO TABLE vgsales_raw
 FIELDS TERMINATED BY ','
 ENCLOSED BY '"'
 LINES TERMINATED BY '\n'
 IGNORE 1 ROWS;
 
-LOAD DATA LOCAL INFILE 'D:/databeez-blg317e-project/data/platforms.csv'
+LOAD DATA LOCAL INFILE '/Users/mertcankilinc/Documents/GitHub/databeez-blg317e-project/data/platforms.csv'
 INTO TABLE Platform_raw
 FIELDS TERMINATED BY ','
 ENCLOSED BY '"'
 LINES TERMINATED BY '\n'
 IGNORE 1 ROWS;
 
-LOAD DATA LOCAL INFILE 'D:/databeez-blg317e-project/data/genres.csv'
+LOAD DATA LOCAL INFILE '/Users/mertcankilinc/Documents/GitHub/databeez-blg317e-project/data/genres.csv'
 INTO TABLE Genre_Raw
 FIELDS TERMINATED BY ','
 ENCLOSED BY '"'
 LINES TERMINATED BY '\n'
 IGNORE 1 ROWS;
 
-LOAD DATA LOCAL INFILE 'D:/databeez-blg317e-project/data/publishers.csv'
+LOAD DATA LOCAL INFILE '/Users/mertcankilinc/Documents/GitHub/databeez-blg317e-project/data/publishers.csv'
 INTO TABLE Publisher_raw
 FIELDS TERMINATED BY ','
 ENCLOSED BY '"'
