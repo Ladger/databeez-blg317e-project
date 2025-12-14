@@ -1,88 +1,103 @@
+/* --- GENEL AYARLAR (Body & Reset) --- */
 body {
-    font-family: Arial, sans-serif;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* Daha modern font */
     margin: 0;
     padding: 0;
-    background-color: #f4f4f4;
+    background-color: #121212; /* Tam siyah değil, çok koyu gri (Göz yormaz) */
+    color: #e0e0e0;            /* Yazılar kırık beyaz */
 }
 
+/* --- ANA KUTU (Content Area) --- */
 #content-area {
-    margin: 20px auto;
-    padding: 20px;
+    margin: 30px auto;
+    padding: 30px;
     width: 90%;
-    min-height: 500px;
-    background-color: white;
-    border: 1px solid #ccc;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    max-width: 1200px;
+    min-height: 600px;
+    background-color: #1e1e1e; /* Koyu kart rengi */
+    border: 1px solid #333;    /* Çok ince gri çerçeve */
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5); /* Derinlik hissi */
+    border-radius: 8px;        /* Köşeleri yumuşat */
 }
 
+/* --- ÜST MENÜ (Navbar / Toolbar) --- */
+/* İki tane toolbar tanımı vardı, birleştirdim */
 .toolbar {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background-color: white;
-    padding: 10px 20px;
-    border-bottom: 2px solid red;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05); 
+    background-color: #1f1f1f; /* Menü arkaplanı */
+    padding: 0 20px;
+    height: 60px;
+    border-bottom: 2px solid #333;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.3);
 }
 
 .table-links {
     display: flex;
-    gap: 15px;
+    gap: 5px;
 }
 
 .nav-link {
     text-decoration: none;
-    color: #333; 
-    padding: 5px 10px;
-    font-size: 14px;
-    border-bottom: 1px solid #333; 
-    transition: all 0.2s;
+    color: #b0b0b0; /* Pasif link rengi */
+    padding: 10px 15px;
+    font-size: 15px;
+    font-weight: 500;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+    border: none; /* Alt çizgiyi kaldırdım, modern buton tarzı yaptım */
 }
 
 .nav-link:hover {
-    color: #007bff;
-    border-bottom: 1px solid #007bff;
+    background-color: #333;
+    color: #fff;
 }
 
+/* Aktif Sekme (Seçili Olan) */
 .nav-link.active {
-    border: 1px solid red; 
-    border-bottom: 3px solid red;
-    background-color: #ffebeb; 
-    color: #d90000;
+    background-color: #383838; /* Hafif açık gri */
+    color: #bb86fc;            /* Neon Mor */
+    border-bottom: 3px solid #bb86fc;
     font-weight: bold;
-    border-radius: 4px;
-    padding: 5px 10px;
 }
 
-.add-button.active {
-    border: 1px solid white;
-    background-color: #1e7e34;
-}
-
+/* --- EKLEME BUTONLARI (Add Section) --- */
 .add-section {
-    background-color: #28a745;
-    padding: 5px 10px;
-    border-radius: 4px;
+    display: flex;
+    align-items: center;
 }
 
 .add-button {
+    background-color: #2e7d32; /* Koyu Yeşil */
     color: white;
     font-weight: bold;
-    border-bottom: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    text-decoration: none;
+    transition: background 0.3s;
 }
 
 .add-button:hover {
-    background-color: #218838;
+    background-color: #4caf50; /* Parlak Yeşil */
 }
 
+.add-button.active {
+    border: 1px solid #81c784;
+    background-color: #1b5e20;
+}
+
+/* --- KARŞILAMA METNİ --- */
 .welcome-text {
     text-align: center;
-    font-size: 2.5em;
-    color: #555;
-    margin-top: 50px;
-    font-family: cursive, sans-serif; 
+    font-size: 3em;
+    color: #bb86fc; /* Neon Mor */
+    margin-top: 60px;
+    font-family: 'Segoe UI', sans-serif;
+    text-shadow: 0 0 15px rgba(187, 134, 252, 0.3);
 }
 
+/* --- TABLO SAYFASI DÜZENİ --- */
 .table-page-container {
     padding: 10px;
 }
@@ -92,268 +107,222 @@ body {
     justify-content: space-between;
     align-items: center;
     margin-bottom: 20px;
+    border-bottom: 1px solid #333;
+    padding-bottom: 15px;
 }
 
+/* Tablo Başlığı */
 .table-title-mor {
-    font-size: 1.8em;
-    color: purple;
+    font-size: 2em;
+    color: #bb86fc; /* Koyu zeminde okunur mor */
     margin: 0;
-    border-bottom: 1px solid purple;
-    padding-bottom: 5px;
+    border-bottom: none; 
 }
 
+/* Dropdown (Kaç adet gösterileceği) */
 .entry-count-dropdown select {
-    padding: 5px 10px;
+    background-color: #2c2c2c;
+    color: white;
+    padding: 8px 12px;
     border-radius: 4px;
-    border: 1px solid #ccc;
+    border: 1px solid #444;
 }
 
+/* --- TABLO SATIRLARI --- */
+/* Başlık Satırı */
 .table-headers-row {
     display: grid;
     font-weight: bold;
-    background-color: #f0f0f0;
-    border-bottom: 2px solid #ccc;
-    padding: 10px 0;
+    background-color: #252525; /* Tablo başlık zemini */
+    color: #bb86fc;            /* Başlık yazıları mor */
+    border-bottom: 1px solid #444;
+    padding: 12px 0;
+    border-radius: 4px 4px 0 0;
 }
 
 .table-header-cell {
-    padding: 5px 10px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    padding: 0 10px;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    letter-spacing: 1px;
 }
 
+/* Veri Satırları */
 .table-entry {
     display: grid;
-    border-bottom: 3px solid #007bff;
-    margin-top: 10px;
-    padding: 5px 0;
-    background-color: #f9f9ff;
+    border-bottom: 1px solid #333; /* İnce gri çizgi */
+    padding: 12px 0;
+    background-color: #1e1e1e;
+    color: #ddd;
     transition: background-color 0.2s;
+    align-items: center;
 }
 
 .table-entry:hover {
-    background-color: #e6f7ff;
+    background-color: #2d2d2d; /* Üzerine gelince hafif aydınlan */
 }
 
 .table-data-cell {
-    padding: 5px 10px;
-    font-size: 0.9em;
+    padding: 0 10px;
+    font-size: 0.95em;
+    white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    white-space: nowrap;
 }
 
-.container { 
-    max-width: 600px; 
-    margin: 20px auto; 
-    padding: 20px; 
-    border: 1px solid #ddd; 
-    border-radius: 8px;
-    background-color: #fff;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-}
-.container h1 { 
-    color: #333; 
-    border-bottom: 1px dashed #ccc;
-    padding-bottom: 10px;
-}
-.container label { 
-    display: block; 
-    margin-top: 15px; 
-    font-weight: bold; 
-}
-.container input[type="text"], 
-.container input[type="number"] { 
-    width: 100%; 
-    padding: 10px; 
-    margin-top: 5px; 
-    box-sizing: border-box; 
-    border: 1px solid #ccc; 
-    border-radius: 4px; 
-    font-size: 1em;
-}
-.container button { 
-    background-color: #5cb85c; 
-    color: white; 
-    padding: 10px 15px; 
-    border: none; 
-    border-radius: 4px; 
-    cursor: pointer; 
-    margin-top: 25px; 
-    font-size: 1.1em;
-}
-.container button:hover { 
-    background-color: #4cae4c; 
-}
-
+/* Detay Butonu (Ok işareti vb.) */
 .detail-btn {
     text-decoration: none;
     color: white;
-    background-color: #258eff;
-    font-size: 1.2em;
-    width: 30px;
-    height: 30px;
+    background-color: #333;
+    font-size: 1em;
+    width: 32px;
+    height: 32px;
     display: flex;
     justify-content: center;
     align-items: center;
     border-radius: 50%;
+    transition: all 0.2s;
 }
 
 .detail-btn:hover {
-    background-color: #1f74cf;
+    background-color: #bb86fc;
+    color: black;
 }
 
-/* Form Tab Bars */
-.form-tabs {
-    display: flex;
-    justify-content: center;
-    margin-bottom: 20px;
-    background-color: #eee;
-    padding: 10px;
+/* --- FORM ALANLARI (Ekleme Sayfası) --- */
+.container { 
+    max-width: 600px; 
+    margin: 40px auto; 
+    padding: 30px; 
+    border: 1px solid #333; 
     border-radius: 8px;
-    gap: 10px;
+    background-color: #1e1e1e; /* Form arka planı koyu */
+    box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+}
+
+.container h1 { 
+    color: #bb86fc; 
+    border-bottom: 1px solid #444;
+    padding-bottom: 15px;
+    margin-top: 0;
+}
+
+.container label { 
+    display: block; 
+    margin-top: 20px; 
+    color: #aaa;
+    font-size: 0.9em;
+}
+
+/* Input Alanları */
+.container input[type="text"], 
+.container input[type="number"] { 
+    width: 100%; 
+    padding: 12px; 
+    margin-top: 8px; 
+    box-sizing: border-box; 
+    background-color: #2c2c2c; /* Input içi koyu gri */
+    border: 1px solid #444; 
+    border-radius: 4px; 
+    color: white; /* Yazılan yazı beyaz */
+    font-size: 1em;
+}
+
+.container input:focus {
+    outline: none;
+    border-color: #bb86fc;
+    background-color: #333;
+}
+
+/* Form Butonu */
+.container button { 
+    background-color: #bb86fc; /* Mor Buton */
+    color: #000;
+    padding: 12px 20px; 
+    border: none; 
+    border-radius: 4px; 
+    cursor: pointer; 
+    margin-top: 30px; 
+    font-size: 1.1em;
+    font-weight: bold;
+    width: 100%;
+    transition: transform 0.1s;
+}
+
+.container button:hover { 
+    background-color: #9965f4; 
+    transform: scale(1.01);
+}
+
+/* --- TABLI FORMLAR (Form Tabs) --- */
+.form-tabs {
+    background-color: #2c2c2c;
+    border: 1px solid #444;
 }
 
 .form-tab-link {
-    text-decoration: none;
-    color: #555;
-    padding: 8px 16px;
-    border-radius: 20px;
-    font-weight: bold;
-    transition: background-color 0.2s, color 0.2s;
-    background-color: white;
-    border: 1px solid #ddd;
+    background-color: #1e1e1e;
+    color: #aaa;
+    border: 1px solid #444;
 }
 
 .form-tab-link:hover {
-    background-color: #e2e6ea;
-    color: #333;
+    background-color: #333;
+    color: white;
 }
 
 .form-tab-link.active {
-    background-color: #007bff;
-    color: white;
-    border-color: #007bff;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    background-color: #bb86fc;
+    color: black;
+    border-color: #bb86fc;
 }
 
-/* Form içi ayırıcı çizgi */
+/* Ayırıcılar */
 .form-separator {
-    margin: 30px 0 15px 0;
-    border: 0;
-    border-top: 1px dashed #ccc;
-    position: relative;
-    height: 1em;
+    border-top: 1px dashed #444;
 }
 
 .form-separator-text {
-    position: absolute;
-    top: -12px;
-    left: 0;
-    background-color: #fff;
-    padding-right: 10px;
-    font-style: italic;
-    color: #007bff;
-    font-weight: bold;
-    font-size: 0.9em;
-}
-/* Navbar Temel */
-.toolbar {
-    background-color: #333;
-    overflow: hidden;
-    display: flex;
-    justify-content: space-between;
-    padding: 0 20px;
-    align-items: center;
+    background-color: #1e1e1e; /* Çizgi üstündeki yazı arka planı */
+    color: #bb86fc;
 }
 
-.nav-link {
-    float: left;
-    display: block;
-    color: #f2f2f2;
-    text-align: center;
-    padding: 14px 16px;
-    text-decoration: none;
-    font-size: 17px;
-    border: none;
-    background: none;
-    cursor: pointer;
-}
-
-.nav-link:hover, .dropdown:hover .dropbtn {
-    background-color: #ddd;
-    color: black;
-}
-
-.nav-link.active {
-    background-color: #04AA6D;
-    color: white;
-}
-
-/* Dropdown Menü Stilleri */
-.dropdown {
-    position: relative;
-    display: inline-block;
-}
-
+/* --- DROPDOWN MENÜ (Navbar içi) --- */
 .dropdown-content {
-    display: none;
-    position: absolute;
-    right: 0;
-    background-color: #f9f9f9;
-    min-width: 160px;
-    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
-    z-index: 10;
+    background-color: #2c2c2c;
+    border: 1px solid #444;
+    box-shadow: 0 8px 16px rgba(0,0,0,0.5);
 }
 
 .dropdown-content a {
+    color: #e0e0e0;
+}
+
+.dropdown-content a:hover {
+    background-color: #bb86fc;
     color: black;
-    padding: 12px 16px;
-    text-decoration: none;
-    display: block;
-    text-align: left;
 }
 
-.dropdown-content a:hover {background-color: #f1f1f1;}
-
-.dropdown:hover .dropdown-content {
-    display: block;
-}
-/* Arama Kutusu ve Sonuç Listesi için Stil */
-.search-container {
-    position: relative;
-    width: 100%;
-    max-width: 500px;
-    margin: 30px auto;
-}
+/* --- ARAMA KUTUSU --- */
 #search-input {
-    width: 100%;
-    padding: 12px;
-    font-size: 16px;
-    border: 2px solid #ccc;
-    border-radius: 5px;
-    box-sizing: border-box; /* Padding taşmasını önler */
+    background-color: #2c2c2c;
+    color: white;
+    border: 1px solid #444;
 }
+
 #search-results {
-    position: absolute;
-    top: 100%;
-    left: 0;
-    right: 0;
-    background: white;
-    border: 1px solid #ccc;
-    border-top: none;
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    z-index: 999;
+    background: #2c2c2c;
+    border: 1px solid #444;
 }
+
 .search-item {
-    padding: 10px;
-    border-bottom: 1px solid #eee;
-    cursor: pointer;
-    text-align: left;
+    color: #ddd;
+    border-bottom: 1px solid #444;
 }
+
 .search-item:hover {
-    background-color: #f1f1f1;
+    background-color: #bb86fc;
+    color: black;
 }
+

@@ -13,14 +13,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 <a href="/table_view?id=Sales" class="nav-link" id="nav-Sales">Sales</a>
             </div>
 
-            <div class="add-section dropdown">
-                <button class="nav-link add-button dropbtn">+ Add Data</button>
-                <div class="dropdown-content">
-                    <a href="/add_entry?type=table-1">Add Game</a>
-                    <a href="/add_entry?type=table-2">Add Publisher</a>
-                    <a href="/add_entry?type=table-3">Add Platform</a>
-                    <a href="/add_entry?type=table-4">Add Genre</a>
-                </div>
+            <div class="add-section">
+                <a href="/add_entry?type=game" class="nav-link add-button">+ Add Data</a>
             </div>
         </nav>
         `;
@@ -31,24 +25,23 @@ document.addEventListener('DOMContentLoaded', () => {
 function highlightActiveLink() {
     const path = window.location.pathname;
     const urlParams = new URLSearchParams(window.location.search);
-    const tableId = urlParams.get('id'); // URL'den ?id=Game gibi değeri alır
+    const tableId = urlParams.get('id'); 
 
-    // Önceki tüm aktif sınıfları temizle
+    // Temizlik
     document.querySelectorAll('.nav-link').forEach(link => link.classList.remove('active'));
     document.querySelector('.add-button')?.classList.remove('active');
 
-    // 1. Ana Sayfa Kontrolü
+    // 1. Ana Sayfa
     if (path === '/') {
         document.getElementById('nav-welcome')?.classList.add('active');
     } 
-    // 2. Tablo Sayfası Kontrolü
+    // 2. Tablo Sayfaları
     else if (path.includes('/table_view') && tableId) {
         const targetLink = document.getElementById(`nav-${tableId}`);
         if (targetLink) targetLink.classList.add('active');
     }
-    // 3. Ekleme Sayfaları Kontrolü: 
-    // Merkezi form sayfası veya POST dönüşleri için aktiflik kontrolü.
-    else if (path.includes('/add_entry') || path.includes('/add_')) {
+    // 3. Ekleme Sayfası (Butonun parlaması için)
+    else if (path.includes('/add_entry')) {
         document.querySelector('.add-button')?.classList.add('active');
     }
 }
