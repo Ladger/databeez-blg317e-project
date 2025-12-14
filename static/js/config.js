@@ -57,24 +57,37 @@ const FORM_SCHEMAS = {
         title: 'Add New Game',
         endpoint: 'add_game',
         fields: [
-            // Oyun Temel Bilgileri
             { name: 'game_name', label: 'Game Name', type: 'text', required: true },
             { name: 'game_year', label: 'Release Year', type: 'number', placeholder: 'YYYY', min: 1950, max: 2025 },
-            { name: 'game_rank', label: 'Rank', type: 'number', required: true },
             
-            // Satış Bilgileri (Oyun formuna dahil edildi)
+            { type: 'separator', label: 'Associations' },
+            { 
+                name: 'publisher_id', 
+                label: 'Publisher', 
+                type: 'search-select', 
+                lookupTable: 'Publisher', // Hangi tabloda aranacak
+                required: true 
+            },
+            { 
+                name: 'platform_id', 
+                label: 'Platform', 
+                type: 'search-select', 
+                lookupTable: 'Platform', 
+                required: true 
+            },
+            { 
+                name: 'genre_id', 
+                label: 'Genre', 
+                type: 'search-select', 
+                lookupTable: 'Genre', 
+                required: true 
+            },
+
             { type: 'separator', label: 'Sales Data (Millions)' },
             { name: 'na_sales', label: 'NA Sales', type: 'number', step: '0.01' },
             { name: 'eu_sales', label: 'EU Sales', type: 'number', step: '0.01' },
             { name: 'jp_sales', label: 'JP Sales', type: 'number', step: '0.01' },
-            { name: 'other_sales', label: 'Other Sales', type: 'number', step: '0.01' },
-            { name: 'global_sales', label: 'Global Sales', type: 'number', step: '0.01' },
-
-            // İlişkiler
-            { type: 'separator', label: 'Foreign Keys' },
-            { name: 'publisher_id', label: 'Publisher ID', type: 'number', required: true },
-            { name: 'platform_id', label: 'Platform ID', type: 'number', required: true },
-            { name: 'genre_id', label: 'Genre ID', type: 'number', required: true }
+            { name: 'other_sales', label: 'Other Sales', type: 'number', step: '0.01' }
         ]
     },
     'table-2': {
@@ -100,7 +113,8 @@ const FORM_SCHEMAS = {
         endpoint: 'add_genre',
         fields: [
             { name: 'genre_name', label: 'Genre Name', type: 'text', required: true },
-            { name: 'description', label: 'Description', type: 'text' }
+            { name: 'description', label: 'Description', type: 'text' },
+            { name: 'example_game', label: 'Example Game', type: 'text' }
         ]
     }
 };

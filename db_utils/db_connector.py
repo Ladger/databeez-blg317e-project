@@ -5,7 +5,7 @@ import mysql.connector
 # Veritabanı Bağlantı Bilgileri (Kendi ayarlarınızla değiştirin)
 DB_CONFIG = {
     'user': 'root',
-    'password': 'Mustcan_3017.mysql', 
+    'password': '1234', 
     'host': '127.0.0.1',
     'database': 'DatabeeZ_db'
 }

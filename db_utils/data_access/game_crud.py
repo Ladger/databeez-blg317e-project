@@ -26,11 +26,13 @@ def add_new_game(name, year, rank, publisher_id, platform_id, genre_id):
     try:
         cursor.execute(query, data)
         conn.commit()
-        return True 
+
+        new_game_id = cursor.lastrowid 
+        return new_game_id
     except mysql.connector.Error as err:
         print(f"Oyun verisi eklenirken hata oluştu: {err}")
         conn.rollback()
-        return False
+        return None
     finally:
         cursor.close()
         conn.close()

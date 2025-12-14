@@ -1,8 +1,10 @@
 from flask import Flask, request, render_template, jsonify
 from flask_cors import CORS
 
+from db_utils.db_connector import get_db_connection
 from db_utils.data_access.data_fetch import fetch_table_data, search_all_tables, get_record_by_id
 from db_utils.data_access.game_crud import add_new_game
+from db_utils.data_access.sales_crud import add_new_sales
 from db_utils.data_access.genre_crud import add_new_genre
 from db_utils.data_access.platform_crud import add_new_platform
 from db_utils.data_access.publisher_crud import add_new_publisher
@@ -78,31 +80,82 @@ def get_data(table_name):
     
     return jsonify(data)
 
-# 5. CREATE POST Endpoints (SADECE POST Metodu Kaldı)
+@app.route('/api/search_fk', methods=['GET'])
+def search_fk():
+
+    table_map = {
+        'Publisher': {'id': 'Publisher_ID', 'name': 'Publisher_Name'},
+        'Platform':  {'id': 'Platform_ID',  'name': 'Platform_Name'},
+        'Genre':     {'id': 'Genre_ID',     'name': 'Genre_Name'}
+    }
+    
+    table = request.args.get('table')
+    query_text = request.args.get('query', '')
+    
+    if table not in table_map or not query_text:
+        return jsonify([])
+
+    col_id = table_map[table]['id']
+    col_name = table_map[table]['name']
+
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+    
+    sql = f"SELECT {col_id} as id, {col_name} as text FROM {table} WHERE {col_name} LIKE %s LIMIT 10"
+    cursor.execute(sql, (f"{query_text}%",))
+    results = cursor.fetchall()
+    
+    cursor.close()
+    conn.close()
+    
+    return jsonify(results)
+
+# 5. CREATE POST Endpoints
 # -------------------------------------------------------------
 
 @app.route('/add_game', methods=['POST'])
 def add_game():
-    # Burası sadece form verisini işler. Form artık add_entry.html'den gelir.
     try:
-        # Kritik: Sayısal değerleri int'e dönüştür ve hata yakalama bloğuna al
+        pub_id_str = request.form.get('publisher_id', '')
+        plat_id_str = request.form.get('platform_id', '')
+        gen_id_str = request.form.get('genre_id', '')
+
+        if not pub_id_str or not plat_id_str or not gen_id_str:
+            return "Error: Please make sure to SELECT Publisher, Platform, and Genre from the dropdown list.", 400
+
+        publisher_id = int(pub_id_str)
+        platform_id = int(plat_id_str)
+        genre_id = int(gen_id_str)
+
         name = request.form['game_name']
-        year = int(request.form['game_year'])
-        rank = int(request.form['game_rank']) 
-        publisher_id = int(request.form['publisher_id']) 
-        platform_id = int(request.form['platform_id']) 
-        genre_id = int(request.form['genre_id']) 
         
-        success = add_new_game(name, year, rank, publisher_id, platform_id, genre_id)
-        
-        if success:
-            return "Oyun başarıyla eklendi!"
+        try:
+            year = int(request.form.get('game_year') or 0)
+            rank = int(request.form.get('game_rank') or 0)
+        except ValueError:
+             return "Error: Year and Rank must be valid numbers.", 400
+
+        new_game_id = add_new_game(name, year, rank, publisher_id, platform_id, genre_id)
+
+        if new_game_id:
+            na = float(request.form.get('na_sales') or 0)
+            eu = float(request.form.get('eu_sales') or 0)
+            jp = float(request.form.get('jp_sales') or 0)
+            other = float(request.form.get('other_sales') or 0)
+            
+            global_sales = na + eu + jp + other
+            
+            sales_success = add_new_sales(new_game_id, na, eu, jp, other, global_sales)
+            
+            if sales_success:
+                return "Game and Sales added successfully!"
+            else:
+                return "Game added, but Sales data failed to save.", 500
         else:
-            return "Hata: Oyun eklenemedi (Veritabanı Hatası).", 500
-    except ValueError:
-        return "Hata: Yıl, Sıralama ve ID alanları geçerli sayılar olmalıdır.", 400
-    
-    # Not: GET metodu tamamen kaldırıldı.
+            return "Failed to add Game (Database Error).", 500
+
+    except ValueError as e:
+        return f"System Error: {str(e)}", 400
 
 @app.route('/add_publisher', methods=['POST'])
 def add_publisher():
