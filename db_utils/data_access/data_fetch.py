@@ -3,9 +3,6 @@ from ..db_connector import get_db_connection
 
 # db_utils/data_access/data_fetch.py
 
-import mysql.connector
-from ..db_connector import get_db_connection
-
 def fetch_table_data(table_name, limit=100, offset=0, sort_by=None, sort_order='ASC', search_query=None):
     """
     Fetches data using JOIN operations, Sorting, Pagination, and SEARCH capabilities.

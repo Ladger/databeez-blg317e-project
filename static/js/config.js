@@ -1,5 +1,5 @@
 const TABLE_SCHEMAS = {
-    'table-1': { 
+    'Game': { 
         title: 'Game',
         idKey: 'Game_ID', 
         columns: [
@@ -11,7 +11,7 @@ const TABLE_SCHEMAS = {
             { key: 'Genre_Name', label: 'Genre' }
         ] 
     },
-    'table-2': { 
+    'Publisher': { 
         title: 'Publisher',
         idKey: 'Publisher_ID', 
         columns: [
@@ -20,7 +20,7 @@ const TABLE_SCHEMAS = {
             { key: 'Year_Established', label: 'Year Established' }
         ] 
     },
-    'table-3': { 
+    'Platform': { 
         title: 'Platform',
         idKey: 'Platform_ID', 
         columns: [
@@ -29,7 +29,7 @@ const TABLE_SCHEMAS = {
             { key: 'Release_Year', label: 'Release Year' }
         ] 
     },
-    'table-4': { 
+    'Genre': { 
         title: 'Genre',
         idKey: 'Genre_ID', 
         columns: [
@@ -38,7 +38,7 @@ const TABLE_SCHEMAS = {
             { key: 'Example_Game', label: 'Example Game' }
         ] 
     },
-    'table-5': { 
+    'Sales': { 
         title: 'Sales',
         idKey: 'Sales_ID', 
         columns: [
@@ -53,7 +53,7 @@ const TABLE_SCHEMAS = {
 };
 
 const FORM_SCHEMAS = {
-    'table-1': {
+    'Game': {
         title: 'Add New Game',
         endpoint: 'add_game',
         fields: [
@@ -65,7 +65,7 @@ const FORM_SCHEMAS = {
                 name: 'publisher_id', 
                 label: 'Publisher', 
                 type: 'search-select', 
-                lookupTable: 'Publisher', // Hangi tabloda aranacak
+                lookupTable: 'Publisher', 
                 required: true 
             },
             { 
@@ -90,7 +90,7 @@ const FORM_SCHEMAS = {
             { name: 'other_sales', label: 'Other Sales', type: 'number', step: '0.01' }
         ]
     },
-    'table-2': {
+    'Publisher': {
         title: 'Add New Publisher',
         endpoint: 'add_publisher',
         fields: [
@@ -99,7 +99,7 @@ const FORM_SCHEMAS = {
             { name: 'year_established', label: 'Year Established', type: 'number', placeholder: 'YYYY' }
         ]
     },
-    'table-3': {
+    'Platform': {
         title: 'Add New Platform',
         endpoint: 'add_platform',
         fields: [
@@ -108,7 +108,7 @@ const FORM_SCHEMAS = {
             { name: 'release_year', label: 'Release Year', type: 'number', placeholder: 'YYYY' }
         ]
     },
-    'table-4': {
+    'Genre': {
         title: 'Add New Genre',
         endpoint: 'add_genre',
         fields: [
