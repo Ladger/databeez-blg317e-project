@@ -47,8 +47,19 @@ function performUpdate() {
 }
 
 function performDelete() {
-    if(confirm("Bu kaydı silmek istediğinize emin misiniz?")) {
-        alert("Delete isteği gönderiliyor...");
-        // Burada /api/delete/... rotasına istek atacağız.
+    if (confirm("Bu kaydı kalıcı olarak silmek istediğinize emin misiniz?")) {
+        fetch(`/api/delete_record/${CURRENT_ENTITY_TYPE}/${CURRENT_ENTITY_ID}`, {
+            method: 'DELETE'
+        })
+        .then(response => response.json())
+        .then(result => {
+            if (result.success) {
+                alert(result.message);
+                window.location.href = '/table_view?id=' + CURRENT_ENTITY_TYPE; 
+            } else {
+                alert("Silme başarısız: " + result.message);
+            }
+        })
+        .catch(err => console.error("Delete hatası:", err));
     }
 }

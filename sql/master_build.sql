@@ -93,7 +93,10 @@ CREATE TABLE Game (
     FOREIGN KEY (Platform_ID) REFERENCES Platform(Platform_ID),
     FOREIGN KEY (Genre_ID) REFERENCES Genre(Genre_ID)
 );
-
+ALTER TABLE Game DROP FOREIGN KEY game_ibfk_2;
+ALTER TABLE Game ADD CONSTRAINT game_ibfk_2 
+    FOREIGN KEY (Platform_ID) REFERENCES Platform(Platform_ID) 
+    ON UPDATE CASCADE ON DELETE RESTRICT;
 DROP TABLE IF EXISTS Sales;
 CREATE TABLE Sales (
     Sales_ID INT AUTO_INCREMENT PRIMARY KEY,  
@@ -106,7 +109,9 @@ CREATE TABLE Sales (
     
     FOREIGN KEY (Game_ID) REFERENCES Game(Game_ID)
 );
-
+ALTER TABLE Sales DROP FOREIGN KEY sales_ibfk_1;
+ALTER TABLE Sales ADD CONSTRAINT sales_ibfk_1 
+FOREIGN KEY (Game_ID) REFERENCES Game(Game_ID) ON DELETE CASCADE;
 -- c. SUMMARY TABLES
 
 DROP TABLE IF EXISTS Genre_Stats;
@@ -121,6 +126,10 @@ CREATE TABLE Genre_Stats (
     FOREIGN KEY (Top_Game_ID) REFERENCES Game(Game_ID)
 );
 
+ALTER TABLE Genre_Stats DROP FOREIGN KEY genre_stats_ibfk_1;
+ALTER TABLE Genre_Stats ADD CONSTRAINT genre_stats_ibfk_1 
+FOREIGN KEY (Genre_ID) REFERENCES Genre(Genre_ID) ON DELETE CASCADE;
+
 DROP TABLE IF EXISTS Platform_Stats;
 CREATE TABLE Platform_Stats(
     Platform_ID INT NOT NULL PRIMARY KEY,
@@ -132,6 +141,10 @@ CREATE TABLE Platform_Stats(
     FOREIGN KEY (Platform_ID) REFERENCES Platform(Platform_ID),
     FOREIGN KEY (Top_Game_ID) REFERENCES Game(Game_ID)
 );
+
+ALTER TABLE Platform_Stats DROP FOREIGN KEY platform_stats_ibfk_1;
+ALTER TABLE Platform_Stats ADD CONSTRAINT platform_stats_ibfk_1 
+FOREIGN KEY (Platform_ID) REFERENCES Platform(Platform_ID) ON DELETE CASCADE;
 
 -- ----------------------------------------------
 --          STEP 2: LOADING DATA

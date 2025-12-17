@@ -110,6 +110,49 @@ def search_fk():
     
     return jsonify(results)
 
+@app.route('/api/delete_record/<entity_type>/<int:entity_id>', methods=['DELETE'])
+def api_delete_record(entity_type, entity_id):
+    """Genel silme API'si: Tablo adı ve ID'ye göre kayıt siler."""
+    ALLOWED_TABLES = ['Game', 'Publisher', 'Platform', 'Genre', 'Sales']
+    
+    if entity_type not in ALLOWED_TABLES:
+        return jsonify({'success': False, 'message': 'Invalid table name.'}), 400
+
+    conn = get_db_connection()
+    if conn is None:
+        return jsonify({'success': False, 'message': 'Database connection failed.'}), 500
+
+    try:
+        cursor = conn.cursor()
+        
+        # Primary Key sütun adını belirle (Örn: Game -> Game_ID)
+        pk_column = f"{entity_type}_ID"
+        
+        # SQL sorgusu - Parametreli sorgu kullanarak SQL Injection'ı önlüyoruz
+        sql = f"DELETE FROM {entity_type} WHERE {pk_column} = %s"
+        cursor.execute(sql, (entity_id,))
+        
+        conn.commit()
+        
+        # Etkilenen satır sayısını kontrol et
+        if cursor.rowcount > 0:
+            # Eğer bir oyun silindiyse sıralamaları (Rank) yeniden hesapla
+            if entity_type == 'Game':
+                from db_utils.data_access.game_crud import update_all_game_ranks
+                update_all_game_ranks()
+                
+            return jsonify({'success': True, 'message': f'Record deleted successfully from {entity_type}.'})
+        else:
+            return jsonify({'success': False, 'message': 'Record not found.'}), 404
+
+    except Exception as e:
+        conn.rollback()
+        return jsonify({'success': False, 'message': f'Database Error: {str(e)}'}), 500
+    finally:
+        cursor.close()
+        conn.close()
+
+ 
 # 5. CREATE POST Endpoints
 # -------------------------------------------------------------
 
