@@ -200,7 +200,15 @@ function performUpdate() {
 }
 
 function performDelete() {
-    if (confirm("Are you sure you want to permanently delete this record?")) {
+    let message = "Are you sure you want to delete this record?";
+    
+    // Genre siliniyorsa özel ve daha sert bir uyarı göster
+    if (CURRENT_ENTITY_TYPE === 'Genre'|| CURRENT_ENTITY_TYPE === 'Platform') {
+        message = "ATTENTION! Deleting this " + CURRENT_ENTITY_TYPE.toLowerCase() + 
+                  " will permanently remove ALL associated games and their sales data. \n\nAre you sure you want to proceed?";
+    }
+
+    if (confirm(message)) {
         fetch(`/api/delete_record/${CURRENT_ENTITY_TYPE}/${CURRENT_ENTITY_ID}`, {
             method: 'DELETE'
         })
@@ -208,11 +216,12 @@ function performDelete() {
         .then(result => {
             if (result.success) {
                 alert(result.message);
-                window.location.href = '/table_view'; 
-            } else {
+                window.location.href = '/table_view?id=' + CURRENT_ENTITY_TYPE;
+            }else {
                 alert("Delete failed: " + result.message);
             }
         })
         .catch(err => console.error("Delete error:", err));
     }
 }
+         

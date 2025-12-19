@@ -85,18 +85,23 @@ CREATE TABLE Game (
     `Year` INT,
     `Rank` INT,
 
-    Publisher_ID INT NOT NULL,
+    Publisher_ID INT NULL,
     Platform_ID INT NOT NULL,
     Genre_ID INT NOT NULL,
 
-    FOREIGN KEY (Publisher_ID) REFERENCES Publisher(Publisher_ID),
-    FOREIGN KEY (Platform_ID) REFERENCES Platform(Platform_ID),
-    FOREIGN KEY (Genre_ID) REFERENCES Genre(Genre_ID)
+    -- PUBLISHER: Silinirse oyun kalsın ama yayıncı alanı boşalsın
+    CONSTRAINT fk_game_publisher FOREIGN KEY (Publisher_ID) 
+        REFERENCES Publisher(Publisher_ID) ON DELETE SET NULL ON UPDATE CASCADE,
+    
+    -- PLATFORM: Silinirse bağlı tüm oyunlar silinsin
+    CONSTRAINT fk_game_platform FOREIGN KEY (Platform_ID) 
+        REFERENCES Platform(Platform_ID) ON DELETE CASCADE ON UPDATE CASCADE,
+    
+    -- GENRE: Silinirse bağlı tüm oyunlar silinsin (Arayüzde uyarı vereceğiz)
+    CONSTRAINT fk_game_genre FOREIGN KEY (Genre_ID) 
+        REFERENCES Genre(Genre_ID) ON DELETE CASCADE ON UPDATE CASCADE
 );
-ALTER TABLE Game DROP FOREIGN KEY game_ibfk_2;
-ALTER TABLE Game ADD CONSTRAINT game_ibfk_2 
-    FOREIGN KEY (Platform_ID) REFERENCES Platform(Platform_ID) 
-    ON UPDATE CASCADE ON DELETE RESTRICT;
+ 
 DROP TABLE IF EXISTS Sales;
 CREATE TABLE Sales (
     Sales_ID INT AUTO_INCREMENT PRIMARY KEY,  
@@ -107,11 +112,10 @@ CREATE TABLE Sales (
     Other_Sales DECIMAL(5, 2),
     Global_Sales DECIMAL(5, 2),
     
-    FOREIGN KEY (Game_ID) REFERENCES Game(Game_ID)
+    CONSTRAINT fk_sales_game FOREIGN KEY (Game_ID) 
+        REFERENCES Game(Game_ID) ON DELETE CASCADE
 );
-ALTER TABLE Sales DROP FOREIGN KEY sales_ibfk_1;
-ALTER TABLE Sales ADD CONSTRAINT sales_ibfk_1 
-FOREIGN KEY (Game_ID) REFERENCES Game(Game_ID) ON DELETE CASCADE;
+ 
 -- c. SUMMARY TABLES
 
 DROP TABLE IF EXISTS Genre_Stats;
@@ -122,13 +126,13 @@ CREATE TABLE Genre_Stats (
     `Avg_Global_Sales` DECIMAL(10, 2) DEFAULT 0.00,
     Top_Game_ID INT,
     
-    FOREIGN KEY (Genre_ID) REFERENCES Genre(Genre_ID),
-    FOREIGN KEY (Top_Game_ID) REFERENCES Game(Game_ID)
+    CONSTRAINT fk_genre_stats_id FOREIGN KEY (Genre_ID) 
+        REFERENCES Genre(Genre_ID) ON DELETE CASCADE,
+    CONSTRAINT fk_genre_stats_topgame FOREIGN KEY (Top_Game_ID) 
+        REFERENCES Game(Game_ID) ON DELETE SET NULL
 );
 
-ALTER TABLE Genre_Stats DROP FOREIGN KEY genre_stats_ibfk_1;
-ALTER TABLE Genre_Stats ADD CONSTRAINT genre_stats_ibfk_1 
-FOREIGN KEY (Genre_ID) REFERENCES Genre(Genre_ID) ON DELETE CASCADE;
+ 
 
 DROP TABLE IF EXISTS Platform_Stats;
 CREATE TABLE Platform_Stats(
@@ -138,40 +142,40 @@ CREATE TABLE Platform_Stats(
     Avg_Global_Sales DECIMAL(10, 2) DEFAULT 0.00,
     Top_Game_ID INT,
     
-    FOREIGN KEY (Platform_ID) REFERENCES Platform(Platform_ID),
-    FOREIGN KEY (Top_Game_ID) REFERENCES Game(Game_ID)
+    CONSTRAINT fk_platform_stats_id FOREIGN KEY (Platform_ID) 
+        REFERENCES Platform(Platform_ID) ON DELETE CASCADE,
+    CONSTRAINT fk_platform_stats_topgame FOREIGN KEY (Top_Game_ID) 
+        REFERENCES Game(Game_ID) ON DELETE SET NULL
 );
 
-ALTER TABLE Platform_Stats DROP FOREIGN KEY platform_stats_ibfk_1;
-ALTER TABLE Platform_Stats ADD CONSTRAINT platform_stats_ibfk_1 
-FOREIGN KEY (Platform_ID) REFERENCES Platform(Platform_ID) ON DELETE CASCADE;
+ 
 
 -- ----------------------------------------------
 --          STEP 2: LOADING DATA
 -- ----------------------------------------------
 
-LOAD DATA LOCAL INFILE '/Users/mertcankilinc/Documents/GitHub/databeez-blg317e-project/data/vgsales.csv' -- Kendi file locationızı girin 
+LOAD DATA LOCAL INFILE '/Users/LENOVO/Desktop/DATABASE/databeez-blg317e-project/data/vgsales.csv' -- Kendi file locationızı girin 
 INTO TABLE vgsales_raw
-FIELDS TERMINATED BY ','
+FIELDS TERMINATED BY ',' 
 ENCLOSED BY '"'
 LINES TERMINATED BY '\n'
 IGNORE 1 ROWS;
 
-LOAD DATA LOCAL INFILE '/Users/mertcankilinc/Documents/GitHub/databeez-blg317e-project/data/platforms.csv'
+LOAD DATA LOCAL INFILE '/Users/LENOVO/Desktop/DATABASE/databeez-blg317e-project/data/platforms.csv'
 INTO TABLE Platform_raw
 FIELDS TERMINATED BY ','
 ENCLOSED BY '"'
 LINES TERMINATED BY '\n'
 IGNORE 1 ROWS;
 
-LOAD DATA LOCAL INFILE '/Users/mertcankilinc/Documents/GitHub/databeez-blg317e-project/data/genres.csv'
+LOAD DATA LOCAL INFILE '/Users/LENOVO/Desktop/DATABASE/databeez-blg317e-project/data/genres.csv'
 INTO TABLE Genre_Raw
 FIELDS TERMINATED BY ','
 ENCLOSED BY '"'
 LINES TERMINATED BY '\n'
 IGNORE 1 ROWS;
 
-LOAD DATA LOCAL INFILE '/Users/mertcankilinc/Documents/GitHub/databeez-blg317e-project/data/publishers.csv'
+LOAD DATA LOCAL INFILE '/Users/LENOVO/Desktop/DATABASE/databeez-blg317e-project/data/publishers.csv'
 INTO TABLE Publisher_raw
 FIELDS TERMINATED BY ','
 ENCLOSED BY '"'
@@ -267,38 +271,37 @@ JOIN
 -- c. SUMMARY TABLES
 
 -- Load Genre Stats Table
-INSERT INTO Genre_Stats (
-    Genre_ID,
-    Top_Game_ID,
-    Total_Games,
-    Total_Global_Sales,
-    Avg_Global_Sales
+INSERT INTO Genre_Stats (Genre_ID, Top_Game_ID, Total_Games, Total_Global_Sales, Avg_Global_Sales)
+WITH GenreAggregates AS (
+    SELECT 
+        g.Genre_ID,
+        COUNT(g.Game_ID) AS Total_Games,
+        SUM(s.Global_Sales) AS Total_Sales,
+        ROUND(AVG(s.Global_Sales), 2) AS Avg_Sales
+    FROM Game g
+    JOIN Sales s ON g.Game_ID = s.Game_ID
+    GROUP BY g.Genre_ID
+),
+TopGames AS (
+    SELECT 
+        g.Genre_ID,
+        g.Game_ID,
+        ROW_NUMBER() OVER (PARTITION BY g.Genre_ID ORDER BY s.Global_Sales DESC) as rn
+    FROM Game g
+    JOIN Sales s ON g.Game_ID = s.Game_ID
 )
-SELECT
-    G.Genre_ID,
-    (
-        SELECT GI.Game_ID 
-        FROM Game AS GI
-        INNER JOIN Sales AS S ON GI.Game_ID = S.Game_ID        
-        WHERE GI.Genre_ID = G.Genre_ID
-        ORDER BY S.Global_Sales DESC
-        LIMIT 1
-    ) AS Top_Game_ID,
-    COUNT(DISTINCT T1.Game_ID) AS Total_Games,
-    COALESCE(SUM(T2.Global_Sales), 0.0) AS Total_Global_Sales,
-    COALESCE(AVG(T2.Global_Sales), 0.0) AS Avg_Global_Sales
-FROM
-    Genre AS G
-LEFT JOIN
-    Game AS T1 ON G.Genre_ID = T1.Genre_ID
-LEFT JOIN
-    Sales AS T2 ON T1.Game_ID = T2.Game_ID
-GROUP BY
-    G.Genre_ID;
-
+SELECT 
+    ga.Genre_ID,
+    tg.Game_ID,
+    ga.Total_Games,
+    ga.Total_Sales,
+    ga.Avg_Sales
+FROM GenreAggregates ga
+JOIN TopGames tg ON ga.Genre_ID = tg.Genre_ID
+WHERE tg.rn = 1;
 -- Load Platform Stats Table
-SET SQL_SAFE_UPDATES = 0;
-DELETE FROM Platform_Stats;
+ 
+ 
 
 INSERT INTO Platform_Stats (
     Platform_ID,
