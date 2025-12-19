@@ -11,6 +11,4 @@ Table Pages:
 
 
 DETAILED VIEW PAGE:
-+ Bu sayfada update, delete butonlarının fonksiyonelitesi eklenmeli
 + Genre ve Publisher için summary table bilgileri de gözükmeli
-+ Kritik bilgiler (FK olan bilgiler) kolayca değişmemeli bir dropdown menu ya da contextual bir query search yapmalı ben yazdıkça.

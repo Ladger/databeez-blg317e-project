@@ -44,11 +44,107 @@ def detailed_view(entity_type, entity_id):
 
 @app.route('/api/get_record/<table_name>/<int:record_id>')
 def api_get_record(table_name, record_id):
-    data = get_record_by_id(table_name, record_id)
-    if data:
-        return jsonify(data)
-    else:
-        return jsonify({'error': 'Record not found'}), 404
+    conn = get_db_connection()
+    if conn is None:
+        return jsonify({'error': 'Database connection failed'}), 500
+    
+    cursor = conn.cursor(dictionary=True)
+    
+    try:
+        if table_name == 'Game':
+            sql = """
+                SELECT 
+                    g.*,
+                    p.Publisher_Name,
+                    pl.Platform_Name,
+                    ge.Genre_Name
+                FROM Game g
+                LEFT JOIN Publisher p ON g.Publisher_ID = p.Publisher_ID
+                LEFT JOIN Platform pl ON g.Platform_ID = pl.Platform_ID
+                LEFT JOIN Genre ge ON g.Genre_ID = ge.Genre_ID
+                WHERE g.Game_ID = %s
+            """
+            cursor.execute(sql, (record_id,))
+            data = cursor.fetchone()
+
+        elif table_name == 'Sales':
+            sql = """
+                SELECT 
+                    s.*,
+                    g.Name as Game_Name
+                FROM Sales s
+                LEFT JOIN Game g ON s.Game_ID = g.Game_ID
+                WHERE s.Sales_ID = %s
+            """
+            cursor.execute(sql, (record_id,))
+            data = cursor.fetchone()
+
+        else:
+            pk_column = f"{table_name}_ID"
+            sql = f"SELECT * FROM {table_name} WHERE {pk_column} = %s"
+            cursor.execute(sql, (record_id,))
+            data = cursor.fetchone()
+
+        if data:
+            return jsonify(data)
+        else:
+            return jsonify({'error': 'Record not found'}), 404
+            
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+    finally:
+        cursor.close()
+        conn.close()
+
+@app.route('/api/update_record/<table_name>/<int:record_id>', methods=['POST'])
+def update_record(table_name, record_id):
+    allowed_tables = ['Game', 'Publisher', 'Platform', 'Genre', 'Sales']
+    if table_name not in allowed_tables:
+        return jsonify({'success': False, 'message': 'Invalid table'}), 400
+
+    data = request.form.to_dict()
+    
+    pk_column = f"{table_name}_ID"
+    if pk_column in data:
+        del data[pk_column]
+        
+    keys_to_remove = [k for k in data.keys() if k.endswith('_display')]
+    for k in keys_to_remove:
+        del data[k]
+
+    if 'Rank' in data:
+        del data['Rank']
+
+    if not data:
+        return jsonify({'success': False, 'message': 'No data provided'}), 400
+
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    try:
+        set_clause = ", ".join([f"`{key}` = %s" for key in data.keys()])
+        
+        values = list(data.values())
+        values.append(record_id)
+
+        sql = f"UPDATE {table_name} SET {set_clause} WHERE {pk_column} = %s"
+        
+        cursor.execute(sql, tuple(values))
+        conn.commit()
+        
+        if table_name == 'Game' or table_name == 'Sales':
+            from db_utils.data_access.game_crud import update_all_game_ranks
+            update_all_game_ranks()
+
+        return jsonify({'success': True, 'message': 'Record updated successfully'})
+    
+    except Exception as e:
+        conn.rollback()
+        print(f"SQL Error: {str(e)}")
+        return jsonify({'success': False, 'message': f"Database Error: {str(e)}"}), 500
+    finally:
+        cursor.close()
+        conn.close()
 
 @app.route('/table_view')
 def table_view():

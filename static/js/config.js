@@ -118,3 +118,37 @@ const FORM_SCHEMAS = {
         ]
     }
 };
+
+const DETAIL_SCHEMAS = {
+    'Game': [
+        { key: 'Name', label: 'Game Title' },
+        { key: 'Year', label: 'Release Year' },
+        { key: 'Rank', label: 'Current Rank' },
+        { key: 'Platform_ID', label: 'Platform' },
+        { key: 'Publisher_ID', label: 'Publisher' },
+        { key: 'Genre_ID', label: 'Genre' }
+    ],
+    'Sales': [
+        { key: 'Game_ID', label: 'Game Name' },
+        { key: 'Global_Sales', label: 'Global Sales (Total)' },
+        { key: 'NA_Sales', label: 'North America Sales' },
+        { key: 'EU_Sales', label: 'Europe Sales' },
+        { key: 'JP_Sales', label: 'Japan Sales' },
+        { key: 'Other_Sales', label: 'Rest of World' }
+    ],
+    'Platform': [
+        { key: 'Platform_Name', label: 'Console Name' },
+        { key: 'Manufacturer', label: 'Company / Manufacturer' },
+        { key: 'Release_Year', label: 'Launch Year' }
+    ],
+    'Publisher': [
+        { key: 'Publisher_Name', label: 'Publisher Name' },
+        { key: 'Country', label: 'Headquarters Location' },
+        { key: 'Year_Established', label: 'Founded Year' }
+    ],
+    'Genre': [
+        { key: 'Genre_Name', label: 'Genre Name' },
+        { key: 'Description', label: 'Description' },
+        { key: 'Example_Game', label: 'Classic Example' }
+    ]
+};
