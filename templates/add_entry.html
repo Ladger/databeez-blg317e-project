@@ -18,10 +18,15 @@
         .form-container {
             max-width: 650px;
             margin: 50px auto;
-            background: #ffffff;
+            background: #212121;
+            border: 1px solid rgba(255, 255, 255, 0.1);
             padding: 40px;
             border-radius: 12px; /* Daha yumuşak köşeler */
-            box-shadow: 0 4px 20px rgba(0,0,0,0.08); /* Daha derin ve yumuşak gölge */
+
+            box-shadow: 
+                0 20px 40px rgba(0, 0, 0, 0.4), 
+                0 5px 15px rgba(0, 0, 0, 0.3),
+                inset 0 1px 1px rgba(255, 255, 255, 0.05);
         }
 
         /* Sekme Stilleri (Tabs) */
@@ -36,7 +41,7 @@
             padding: 12px 24px;
             cursor: pointer;
             text-decoration: none;
-            color: #666;
+            color: #cfcfcf;
             transition: all 0.3s ease;
             font-weight: 500;
             border-bottom: 3px solid transparent;
@@ -62,10 +67,10 @@
         }
 
         #form-description {
-            font-size: 0.95rem;
+            font-size: 1rem;
             line-height: 1.5;
             margin-bottom: 25px;
-            color: #000000;
+            color: #a3a3a3 !important;
         }
 
         /* Giriş Alanları (Inputs) */
@@ -73,8 +78,8 @@
             display: block;
             margin-top: 20px;
             font-weight: 600;
-            font-size: 0.9rem;
-            color: #444;
+            font-size: 1rem;
+            color: #9d4ffc;
             margin-bottom: 8px;
         }
 
@@ -106,7 +111,7 @@
             top: -12px;
             left: 50%;
             transform: translateX(-50%);
-            background: #fff;
+            background: #212121;
             padding-right: 10px;
             font-weight: bold;
             color: #007bff;
