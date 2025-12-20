@@ -13,33 +13,24 @@
     <main id="content-area">
         <div class="table-page-container">
             <div class="table-page-header">
-                <h2 id="page-title" class="table-title-mor">Table Name</h2>
-                
-                <div class="search-container" style="display: flex; gap: 10px; align-items: center; margin-left: 20px; flex-grow: 1;">
-                    <input type="text" id="search-input" placeholder="İsim ile ara..." 
-                           style="padding: 8px; border-radius: 5px; border: 1px solid #ccc; width: 200px;">
-                    
-                    <button onclick="handleSearch()" 
-                            style="padding: 8px 15px; cursor: pointer; background-color: #6a1b9a; color: white; border: none; border-radius: 5px;">
-                        Filter
-                    </button>
-                    
-                    <button onclick="clearSearch()" 
-                            style="padding: 8px; cursor: pointer; border: 1px solid #ccc; border-radius: 5px; background: #fff;" 
-                            title="Aramayı Temizle">
-                        ❌
-                    </button>
-                </div>
-                <div class="entry-count-dropdown">
-                    <label for="entry-count">Entries Shown:</label>
-                    <select id="entry-count" class="entry-select">
-                        <option value="10">10</option>
-                        <option value="50">50</option>
-                        <option value="100">100</option>
-                        <option value="300" selected>300</option>
-                    </select>
-                </div>
-            </div>
+    <div style="display: flex; align-items: center; gap: 20px;">
+        <h1 class="table-title-mor" id="page-title">Loading...</h1>
+        
+        <div class="search-container">
+            <input type="text" id="search-input" placeholder="Search by name..." autocomplete="off">
+            <button class="btn-clear" onclick="clearSearch()" title="Clear">✕</button>
+        </div>
+    </div>
+
+    <div class="entry-count-dropdown">
+        <label for="entry-count">Show:</label>
+        <select id="entry-count">
+            <option value="50">50</option>
+            <option value="100">100</option>
+            <option value="300" selected>300</option>
+        </select>
+    </div>
+</div>
 
             <div id="table-headers" class="table-headers-row"></div>
 
