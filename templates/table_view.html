@@ -22,13 +22,39 @@
         </div>
     </div>
 
-    <div class="entry-count-dropdown">
-        <label for="entry-count">Show:</label>
-        <select id="entry-count">
-            <option value="50">50</option>
-            <option value="100">100</option>
-            <option value="300" selected>300</option>
-        </select>
+    <div style="display: flex; gap: 15px; align-items: center;">
+        
+        <button onclick="openFilterModal()" class="btn-filter" style="display: flex; align-items: center; gap: 5px; padding: 6px 12px; background: #333; color: white; border: 1px solid #555; border-radius: 4px; cursor: pointer;">
+            <span>Filter</span> 
+            <span>▼</span>
+        </button>
+
+        <div class="entry-count-dropdown">
+            <label for="entry-count">Show:</label>
+            <select id="entry-count">
+                <option value="50">50</option>
+                <option value="100">100</option>
+                <option value="300" selected>300</option>
+            </select>
+        </div>
+    </div>
+</div>
+
+<div id="filter-modal" class="modal-overlay" style="display: none;">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>Filter Data</h3>
+            <span class="close-modal" onclick="closeFilterModal()">×</span>
+        </div>
+        <div class="modal-body" id="filter-inputs-container">
+            </div>
+        <div class="modal-footer">
+            <button onclick="clearFilters()" class="btn-secondary">Clear All</button>
+            <div style="display: flex; gap: 10px;">
+                <button onclick="closeFilterModal()" class="btn-secondary">Cancel</button>
+                <button onclick="applyFilters()" class="btn-primary">Apply Filters</button>
+            </div>
+        </div>
     </div>
 </div>
 

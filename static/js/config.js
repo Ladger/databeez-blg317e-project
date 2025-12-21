@@ -9,7 +9,15 @@ const TABLE_SCHEMAS = {
             { key: 'Publisher_Name', label: 'Publisher' }, 
             { key: 'Platform_Name', label: 'Platform' },
             { key: 'Genre_Name', label: 'Genre' }
-        ] 
+        ],
+        // NEW FILTER CONFIG
+        filters: [
+            { key: 'Year', label: 'Release Year', type: 'range' },
+            { key: 'Rank', label: 'Rank', type: 'range' },
+            { key: 'Publisher_ID', label: 'Publisher', type: 'select', source: 'Publisher_ID' },
+            { key: 'Platform_ID', label: 'Platform', type: 'select', source: 'Platform_ID' },
+            { key: 'Genre_ID', label: 'Genre', type: 'select', source: 'Genre_ID' }
+        ]
     },
     'Publisher': { 
         title: 'Publisher',
@@ -18,6 +26,10 @@ const TABLE_SCHEMAS = {
             { key: 'Publisher_Name', label: 'Publisher' }, 
             { key: 'Country', label: 'Country' }, 
             { key: 'Year_Established', label: 'Year Established' }
+        ],
+        filters: [
+            { key: 'Country', label: 'Country', type: 'select', source: 'Country' },
+            { key: 'Year_Established', label: 'Year Established', type: 'range' }
         ] 
     },
     'Platform': { 
@@ -27,6 +39,10 @@ const TABLE_SCHEMAS = {
             { key: 'Platform_Name', label: 'Platform' }, 
             { key: 'Manufacturer', label: 'Manufacturer' }, 
             { key: 'Release_Year', label: 'Release Year' }
+        ],
+        filters: [
+            { key: 'Manufacturer', label: 'Manufacturer', type: 'select', source: 'Manufacturer' },
+            { key: 'Release_Year', label: 'Release Year', type: 'range' }
         ] 
     },
     'Genre': { 
@@ -36,7 +52,8 @@ const TABLE_SCHEMAS = {
             { key: 'Genre_Name', label: 'Genre' }, 
             { key: 'Description', label: 'Description' }, 
             { key: 'Example_Game', label: 'Example Game' }
-        ] 
+        ],
+        filters: [] // User said no need for Genre page filters
     },
     'Sales': { 
         title: 'Sales',
@@ -48,6 +65,13 @@ const TABLE_SCHEMAS = {
             { key: 'JP_Sales', label: 'JP Sales (M)' }, 
             { key: 'Other_Sales', label: 'Other Sales (M)' }, 
             { key: 'Global_Sales', label: 'Global Sales (M)' }
+        ],
+        filters: [
+            { key: 'NA_Sales', label: 'NA Sales', type: 'range' },
+            { key: 'EU_Sales', label: 'EU Sales', type: 'range' },
+            { key: 'JP_Sales', label: 'JP Sales', type: 'range' },
+            { key: 'Other_Sales', label: 'Other Sales', type: 'range' },
+            { key: 'Global_Sales', label: 'Global Sales', type: 'range' }
         ] 
     }
 };

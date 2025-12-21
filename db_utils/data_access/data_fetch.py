@@ -1,7 +1,7 @@
 import mysql.connector
 from ..db_connector import get_db_connection
 
-def fetch_table_data(table_name, limit=100, offset=0, sort_by=None, sort_order='ASC', search_query=None):
+def fetch_table_data(table_name, limit=100, offset=0, sort_by=None, sort_order='ASC', search_query=None, filters=None):
     ALLOWED_TABLES = ['Game', 'Publisher', 'Platform', 'Genre', 'Sales']
     
     if table_name not in ALLOWED_TABLES:
@@ -26,11 +26,7 @@ def fetch_table_data(table_name, limit=100, offset=0, sort_by=None, sort_order='
                 LEFT JOIN Genre ge ON g.Genre_ID = ge.Genre_ID
             """
             count_sql = "SELECT COUNT(*) as total FROM Game g"
-            
-            if search_query:
-                where_clauses.append("g.Name LIKE %s") 
-                params.append(f"{search_query}%")
-
+            alias = "g" 
         elif table_name == 'Sales':
             select_sql = """
                 SELECT s.Sales_ID, g.Name as Game_Name, s.NA_Sales, s.EU_Sales, 
@@ -39,19 +35,42 @@ def fetch_table_data(table_name, limit=100, offset=0, sort_by=None, sort_order='
                 LEFT JOIN Game g ON s.Game_ID = g.Game_ID
             """
             count_sql = "SELECT COUNT(*) as total FROM Sales s LEFT JOIN Game g ON s.Game_ID = g.Game_ID"
-            
-            if search_query:
-                where_clauses.append("g.Name LIKE %s")
-                params.append(f"{search_query}%")
-
+            alias = "s"
         else:
             select_sql = f"SELECT * FROM {table_name}"
             count_sql = f"SELECT COUNT(*) as total FROM {table_name}"
-            
-            if search_query:
+            alias = "" 
+
+        if search_query:
+            if table_name == 'Game':
+                where_clauses.append("g.Name LIKE %s")
+                params.append(f"{search_query}%")
+            elif table_name == 'Sales':
+                where_clauses.append("g.Name LIKE %s")
+                params.append(f"{search_query}%")
+            else:
                 name_col = f"{table_name}_Name"
                 where_clauses.append(f"{name_col} LIKE %s")
                 params.append(f"{search_query}%")
+
+        if filters:
+            for key, value in filters.items():
+                if not value: continue 
+
+                if key.startswith('min_'):
+                    col = key.replace('min_', '')
+                    prefix = f"{alias}." if alias else ""
+                    where_clauses.append(f"{prefix}`{col}` >= %s")
+                    params.append(value)
+                elif key.startswith('max_'):
+                    col = key.replace('max_', '')
+                    prefix = f"{alias}." if alias else ""
+                    where_clauses.append(f"{prefix}`{col}` <= %s")
+                    params.append(value)
+                else:
+                    prefix = f"{alias}." if alias else ""
+                    where_clauses.append(f"{prefix}`{key}` = %s")
+                    params.append(value)
 
         if where_clauses:
             full_where = " WHERE " + " AND ".join(where_clauses)
@@ -86,6 +105,23 @@ def fetch_table_data(table_name, limit=100, offset=0, sort_by=None, sort_order='
         if conn:
             cursor.close()
             conn.close()
+
+def get_distinct_values(table_name, column_name):
+    """Helper to populate dropdowns like 'Country' or 'Manufacturer'"""
+    conn = get_db_connection()
+    if conn is None: return []
+    
+    cursor = conn.cursor(dictionary=True)
+    try:
+        sql = f"SELECT DISTINCT `{column_name}` as val FROM `{table_name}` WHERE `{column_name}` IS NOT NULL AND `{column_name}` != '' ORDER BY `{column_name}` ASC"
+        cursor.execute(sql)
+        return [row['val'] for row in cursor.fetchall()]
+    except Exception as e:
+        print(f"Error getting distinct: {e}")
+        return []
+    finally:
+        cursor.close()
+        conn.close()
 
 def search_all_tables(search_term, limit=5):
     """

@@ -2,7 +2,7 @@ from flask import Flask, request, render_template, jsonify
 from flask_cors import CORS
 
 from db_utils.db_connector import get_db_connection
-from db_utils.data_access.data_fetch import fetch_table_data, search_all_tables, get_record_by_id, fetch_filter_options, search_games_advanced
+from db_utils.data_access.data_fetch import fetch_table_data, get_distinct_values, search_all_tables, get_record_by_id, fetch_filter_options, search_games_advanced
 from db_utils.data_access.game_crud import add_new_game, update_all_game_ranks
 from db_utils.data_access.sales_crud import add_new_sales
 from db_utils.data_access.genre_crud import add_new_genre
@@ -180,6 +180,24 @@ def update_record(table_name, record_id):
 def table_view():
     return render_template('table_view.html')
 
+@app.route('/api/get_filter_options/<table_name>')
+def api_table_filter_options(table_name):
+    options = {}
+    
+    if table_name == 'Game':
+        data = fetch_filter_options() 
+        options['Publisher_ID'] = data['publishers']
+        options['Platform_ID'] = data['platforms']
+        options['Genre_ID'] = data['genres']
+        
+    elif table_name == 'Publisher':
+        options['Country'] = get_distinct_values('Publisher', 'Country')
+        
+    elif table_name == 'Platform':
+        options['Manufacturer'] = get_distinct_values('Platform', 'Manufacturer')
+
+    return jsonify(options)
+
 @app.route('/api/get_data/<table_name>', methods=['GET'])
 def get_data(table_name):
     page = request.args.get('page', 1, type=int)
@@ -188,6 +206,13 @@ def get_data(table_name):
     sort_order = request.args.get('order', default='ASC', type=str)
     search_query = request.args.get('search', default=None, type=str)
     
+    filters = {}
+    for key, value in request.args.items():
+        if key.startswith('min_') or key.startswith('max_'):
+            filters[key] = value
+        elif key in ['Publisher_ID', 'Platform_ID', 'Genre_ID', 'Country', 'Manufacturer']:
+            filters[key] = value
+
     offset = (page - 1) * limit
     
     result = fetch_table_data(
@@ -196,7 +221,8 @@ def get_data(table_name):
         offset=offset, 
         sort_by=sort_by, 
         sort_order=sort_order,
-        search_query=search_query
+        search_query=search_query,
+        filters=filters
     )
     
     return jsonify(result)
