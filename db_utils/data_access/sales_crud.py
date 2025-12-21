@@ -1,14 +1,13 @@
 # db_utils/data_access/sales_crud.py
 
 import mysql.connector
-from ..db_connector import get_db_connection # data_access'ten bir üst klasördeki db_connector'ı çağırır
+from ..db_connector import get_db_connection  
 
 # ----------------------------------------------------------------------
 # CREATE OPERASYONU (INSERT)
 # ----------------------------------------------------------------------
 
 def add_new_sales(game_id, na_sales, eu_sales, jp_sales, other_sales, global_sales):
-    """Sales tablosuna satış verilerini ekler."""
     
     conn = get_db_connection()
     if conn is None:
@@ -40,7 +39,6 @@ def add_new_sales(game_id, na_sales, eu_sales, jp_sales, other_sales, global_sal
 # ----------------------------------------------------------------------
 
 def get_sales_by_id(sales_id):
-    """Belirtilen Sales_ID'ye ait tek bir satış kaydını döndürür."""
     conn = get_db_connection()
     if conn is None:
         return None
@@ -70,7 +68,7 @@ def get_sales_by_id(sales_id):
 # ----------------------------------------------------------------------
 
 def update_sales_record(sales_id, na_sales, eu_sales, jp_sales, other_sales, global_sales):
-    """Belirtilen Sales_ID'ye ait satış değerlerini günceller."""
+     
     conn = get_db_connection()
     if conn is None:
         return False
@@ -93,7 +91,7 @@ def update_sales_record(sales_id, na_sales, eu_sales, jp_sales, other_sales, glo
     try:
         cursor.execute(query, data)
         conn.commit()
-        # Kaç satırın etkilendiğini kontrol ederek başarıyı döndürür
+        
         return cursor.rowcount > 0 
     except mysql.connector.Error as err:
         print(f"Sales kaydı güncellenirken hata oluştu: {err}")
@@ -108,7 +106,7 @@ def update_sales_record(sales_id, na_sales, eu_sales, jp_sales, other_sales, glo
 # ----------------------------------------------------------------------
 
 def delete_sales_record(sales_id):
-    """Belirtilen Sales_ID'ye ait satış kaydını siler."""
+     
     conn = get_db_connection()
     if conn is None:
         return False
