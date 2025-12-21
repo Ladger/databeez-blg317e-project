@@ -190,7 +190,7 @@ def get_data(table_name):
     
     offset = (page - 1) * limit
     
-    data = fetch_table_data(
+    result = fetch_table_data(
         table_name, 
         limit=limit, 
         offset=offset, 
@@ -199,7 +199,7 @@ def get_data(table_name):
         search_query=search_query
     )
     
-    return jsonify(data)
+    return jsonify(result)
 
 @app.route('/api/search_fk', methods=['GET'])
 def search_fk():
