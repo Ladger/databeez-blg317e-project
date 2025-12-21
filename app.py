@@ -8,22 +8,19 @@ from db_utils.data_access.sales_crud import add_new_sales
 from db_utils.data_access.genre_crud import add_new_genre
 from db_utils.data_access.platform_crud import add_new_platform
 from db_utils.data_access.publisher_crud import add_new_publisher
+from db_utils.data_access.stats_updater import update_all_genre_stats, update_all_platform_stats
 
 app = Flask(__name__)
 CORS(app)
 
-# 1. Ana Sayfa (Welcome Page)
 @app.route('/')
 def index():
     return render_template('index.html')
 
-# 2. Merkezi Form Gösterme Rotası (Tüm formlar için tek bir HTML)
 @app.route('/add_entry')
 def add_entry_page():
-    # add_entry.html şablonu, JS ile hangi formun çizileceğini URL'den okuyacak.
     return render_template('add_entry.html')
 
-# 3. Arama API'si
 @app.route('/autocomplete', methods=['GET'])
 def autocomplete():
     term = request.args.get('term', '')
@@ -32,7 +29,6 @@ def autocomplete():
     results = search_all_tables(term, limit=5)
     return jsonify(results)
 
-# 4. Detay ve API Rotaları (Aynı Kalır)
 @app.route('/detailed_view/<entity_type>/<int:entity_id>')
 def detailed_view(entity_type, entity_id):
     context = {
@@ -165,8 +161,10 @@ def update_record(table_name, record_id):
         conn.commit()
         
         if table_name == 'Game' or table_name == 'Sales':
-            from db_utils.data_access.game_crud import update_all_game_ranks
             update_all_game_ranks()
+            
+            update_all_genre_stats()
+            update_all_platform_stats()
 
         return jsonify({'success': True, 'message': 'Record updated successfully'})
     
@@ -184,33 +182,27 @@ def table_view():
 
 @app.route('/api/get_data/<table_name>', methods=['GET'])
 def get_data(table_name):
-    # Get Existing Parameters (Keeping them as is)
     page = request.args.get('page', 1, type=int)
-    limit = request.args.get('limit', default=100, type=int) # Your preference: 100
+    limit = request.args.get('limit', default=100, type=int)
     sort_by = request.args.get('sort_by', default=None, type=str)
     sort_order = request.args.get('order', default='ASC', type=str)
-    
-    # Capture Search Parameter 
     search_query = request.args.get('search', default=None, type=str)
     
-    # Calculate Offset 
     offset = (page - 1) * limit
     
-    # Call Database Function
     data = fetch_table_data(
         table_name, 
         limit=limit, 
         offset=offset, 
         sort_by=sort_by, 
         sort_order=sort_order,
-        search_query=search_query # <-- Passing the new search capability
+        search_query=search_query
     )
     
     return jsonify(data)
 
 @app.route('/api/search_fk', methods=['GET'])
 def search_fk():
-
     table_map = {
         'Publisher': {'id': 'Publisher_ID', 'name': 'Publisher_Name'},
         'Platform':  {'id': 'Platform_ID',  'name': 'Platform_Name'},
@@ -240,7 +232,6 @@ def search_fk():
 
 @app.route('/api/delete_record/<entity_type>/<int:entity_id>', methods=['DELETE'])
 def api_delete_record(entity_type, entity_id):
-    """Genel silme API'si: Tablo adı ve ID'ye göre kayıt siler."""
     ALLOWED_TABLES = ['Game', 'Publisher', 'Platform', 'Genre', 'Sales']
     
     if entity_type not in ALLOWED_TABLES:
@@ -252,22 +243,20 @@ def api_delete_record(entity_type, entity_id):
 
     try:
         cursor = conn.cursor()
-        
-        # Primary Key sütun adını belirle (Örn: Game -> Game_ID)
         pk_column = f"{entity_type}_ID"
         
-        # SQL sorgusu - Parametreli sorgu kullanarak SQL Injection'ı önlüyoruz
         sql = f"DELETE FROM {entity_type} WHERE {pk_column} = %s"
         cursor.execute(sql, (entity_id,))
         
         conn.commit()
         
-        # Etkilenen satır sayısını kontrol et
         if cursor.rowcount > 0:
-            # Eğer bir oyun silindiyse sıralamaları (Rank) yeniden hesapla
             if entity_type == 'Game':
-                from db_utils.data_access.game_crud import update_all_game_ranks
                 update_all_game_ranks()
+
+            if entity_type == 'Game' or entity_type == 'Sales':
+                update_all_genre_stats()
+                update_all_platform_stats()
                 
             return jsonify({'success': True, 'message': f'Record deleted successfully from {entity_type}.'})
         else:
@@ -279,10 +268,6 @@ def api_delete_record(entity_type, entity_id):
     finally:
         cursor.close()
         conn.close()
-
- 
-# 5. CREATE POST Endpoints
-# -------------------------------------------------------------
 
 @app.route('/add_game', methods=['POST'])
 def add_game():
@@ -301,11 +286,9 @@ def add_game():
         year = int(request.form.get('game_year') or 0)
         temp_rank = 999999 
         
-        from db_utils.data_access.game_crud import add_new_game, update_all_game_ranks
         new_game_id = add_new_game(name, year, temp_rank, publisher_id, platform_id, genre_id)
 
         if new_game_id:
-            from db_utils.data_access.sales_crud import add_new_sales
             na = float(request.form.get('na_sales') or 0)
             eu = float(request.form.get('eu_sales') or 0)
             jp = float(request.form.get('jp_sales') or 0)
@@ -316,12 +299,15 @@ def add_game():
             sales_success = add_new_sales(new_game_id, na, eu, jp, other, global_sales)
             
             if sales_success:
-                # 4. Update Ranks
                 rank_success = update_all_game_ranks()
+                
+                update_all_genre_stats()
+                update_all_platform_stats()
+
                 if rank_success:
                     return jsonify({'success': True, 'message': "Success! Game added and Ranks updated."})
                 else:
-                    return jsonify({'success': True, 'message': "Game added, but Rank calculation failed."}) # Still counted as success
+                    return jsonify({'success': True, 'message': "Game added, but Rank calculation failed."})
             else:
                 return jsonify({'success': False, 'message': "Game added, but Sales data failed."}), 500
         else:
@@ -333,7 +319,6 @@ def add_game():
 @app.route('/add_publisher', methods=['POST'])
 def add_publisher():
     try:
-        # 1. Get Data
         name = request.form.get('publisher_name')
         country = request.form.get('country', '')
         year_val = request.form.get('year_established')
@@ -342,7 +327,6 @@ def add_publisher():
         if not name:
              return jsonify({'success': False, 'message': "Error: Publisher Name is required."}), 400
 
-        from db_utils.data_access.publisher_crud import add_new_publisher
         success = add_new_publisher(name, country, year)
 
         if success:
@@ -366,7 +350,6 @@ def add_platform():
         if not name:
              return jsonify({'success': False, 'message': "Error: Platform Name is required."}), 400
 
-        from db_utils.data_access.platform_crud import add_new_platform
         success = add_new_platform(name, manufacturer, year)
 
         if success:
@@ -388,7 +371,6 @@ def add_genre():
         if not name:
              return jsonify({'success': False, 'message': "Error: Genre Name is required."}), 400
 
-        from db_utils.data_access.genre_crud import add_new_genre
         success = add_new_genre(name, description, example)
 
         if success:

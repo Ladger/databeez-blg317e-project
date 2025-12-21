@@ -1,8 +1,6 @@
 import mysql.connector
 from ..db_connector import get_db_connection
 
-# db_utils/data_access/data_fetch.py
-
 def fetch_table_data(table_name, limit=100, offset=0, sort_by=None, sort_order='ASC', search_query=None):
     """
     Fetches data using JOIN operations, Sorting, Pagination, and SEARCH capabilities.
@@ -18,9 +16,8 @@ def fetch_table_data(table_name, limit=100, offset=0, sort_by=None, sort_order='
 
     try:
         cursor = conn.cursor(dictionary=True)
-        params = [] # We will collect SQL parameters in this list
+        params = []
 
-        # 1. Base Query (Basic Query and Filtering)
         if table_name == 'Game':
             base_query = """
                 SELECT 
@@ -36,7 +33,6 @@ def fetch_table_data(table_name, limit=100, offset=0, sort_by=None, sort_order='
                 LEFT JOIN Platform pl ON g.Platform_ID = pl.Platform_ID
                 LEFT JOIN Genre ge ON g.Genre_ID = ge.Genre_ID
             """
-            # Filter: By Game Name
             if search_query:
                 base_query += " WHERE g.Name LIKE %s"
                 params.append(f"%{search_query}%")
@@ -54,14 +50,12 @@ def fetch_table_data(table_name, limit=100, offset=0, sort_by=None, sort_order='
                 FROM Sales s
                 LEFT JOIN Game g ON s.Game_ID = g.Game_ID
             """
-            # Filter: By Game Name in Sales table as well
             if search_query:
                 base_query += " WHERE g.Name LIKE %s"
                 params.append(f"%{search_query}%")
 
         elif table_name == 'Publisher':
             base_query = "SELECT * FROM Publisher"
-            # Filter: By Publisher Name
             if search_query:
                 base_query += " WHERE Publisher_Name LIKE %s"
                 params.append(f"%{search_query}%")
@@ -80,34 +74,24 @@ def fetch_table_data(table_name, limit=100, offset=0, sort_by=None, sort_order='
                 
         else:
             base_query = f"SELECT * FROM {table_name}"
-            # No default search for other tables, can be added if desired.
 
-        # 2. Sorting (ORDER BY)
         safe_order = 'DESC' if str(sort_order).upper() == 'DESC' else 'ASC'
         
         if sort_by:
-            # A simple whitelist check could be added here against SQL Injection.
-            # Adding directly for flexibility for now.
             order_clause = f" ORDER BY `{sort_by}` {safe_order}"
         else:
-            # Default sortings
             if table_name == 'Game':
                 order_clause = " ORDER BY g.`Rank` ASC"
             elif table_name == 'Sales':
                 order_clause = " ORDER BY s.Global_Sales DESC"
             else:
-                # Guessing ID column using table name (e.g., Platform_ID)
                 order_clause = f" ORDER BY {table_name}_ID ASC"
 
-        # 3. Pagination (LIMIT - OFFSET)
         limit_clause = " LIMIT %s OFFSET %s"
-        params.extend([limit, offset]) # Append Limit and Offset to the end of parameters
+        params.extend([limit, offset])
         
-        # 4. Combine and Execute Query
         final_query = base_query + order_clause + limit_clause
         
-        # You can print the query for debugging (Uncomment if needed)
-        # print(f"Executing Query: {final_query} with params {params}")
 
         cursor.execute(final_query, tuple(params))
         result = cursor.fetchall()
@@ -122,9 +106,6 @@ def fetch_table_data(table_name, limit=100, offset=0, sort_by=None, sort_order='
         if conn:
             cursor.close()
             conn.close()
-# ---------------------------------------------------------
-# EKSİK OLAN FONKSİYON: Arama Çubuğu İçin Gerekli
-# ---------------------------------------------------------
 
 def search_all_tables(search_term, limit=5):
     """
@@ -163,7 +144,7 @@ def search_all_tables(search_term, limit=5):
         conn.close()
         
     return results
-# Mevcut dosyanın en altına ekleyin
+
 def get_record_by_id(table_name, record_id):
     """Tek bir kaydı ID'sine göre çeker."""
     conn = get_db_connection()
@@ -185,6 +166,112 @@ def get_record_by_id(table_name, record_id):
     except mysql.connector.Error as err:
         print(f"Detay çekme hatası: {err}")
         return None
+    finally:
+        cursor.close()
+        conn.close()
+
+def get_detailed_record(table_name, record_id):
+    """
+    Fetches a single record with JOINs appropriate for the entity type.
+    Replaces the complex SQL logic previously in app.py api_get_record.
+    """
+    conn = get_db_connection()
+    if conn is None:
+        return None
+    
+    cursor = conn.cursor(dictionary=True)
+    
+    try:
+        if table_name == 'Game':
+            sql = """
+                SELECT 
+                    g.*,
+                    p.Publisher_Name,
+                    pl.Platform_Name,
+                    ge.Genre_Name
+                FROM Game g
+                LEFT JOIN Publisher p ON g.Publisher_ID = p.Publisher_ID
+                LEFT JOIN Platform pl ON g.Platform_ID = pl.Platform_ID
+                LEFT JOIN Genre ge ON g.Genre_ID = ge.Genre_ID
+                WHERE g.Game_ID = %s
+            """
+        elif table_name == 'Sales':
+            sql = """
+                SELECT 
+                    s.*,
+                    g.Name as Game_Name
+                FROM Sales s
+                LEFT JOIN Game g ON s.Game_ID = g.Game_ID
+                WHERE s.Sales_ID = %s
+            """
+        elif table_name == 'Genre':
+            sql = """
+                SELECT 
+                    g.*,
+                    gs.Total_Games,
+                    gs.Total_Global_Sales,
+                    gs.Avg_Global_Sales,
+                    gm.Name as Top_Game_Name
+                FROM Genre g
+                LEFT JOIN Genre_Stats gs ON g.Genre_ID = gs.Genre_ID
+                LEFT JOIN Game gm ON gs.Top_Game_ID = gm.Game_ID
+                WHERE g.Genre_ID = %s
+            """
+        elif table_name == 'Platform':
+            sql = """
+                SELECT 
+                    p.*,
+                    ps.Total_Games,
+                    ps.Total_Global_Sales,
+                    ps.Avg_Global_Sales,
+                    gm.Name as Top_Game_Name
+                FROM Platform p
+                LEFT JOIN Platform_Stats ps ON p.Platform_ID = ps.Platform_ID
+                LEFT JOIN Game gm ON ps.Top_Game_ID = gm.Game_ID
+                WHERE p.Platform_ID = %s
+            """
+        else:
+            pk_column = f"{table_name}_ID"
+            sql = f"SELECT * FROM {table_name} WHERE {pk_column} = %s"
+
+        cursor.execute(sql, (record_id,))
+        return cursor.fetchone()
+
+    except mysql.connector.Error as err:
+        print(f"Error fetching detailed record: {err}")
+        return None
+    finally:
+        cursor.close()
+        conn.close()
+
+def search_foreign_keys_data(table, query_text):
+    """
+    Performs the search for the autocomplete dropdowns.
+    """
+    table_map = {
+        'Publisher': {'id': 'Publisher_ID', 'name': 'Publisher_Name'},
+        'Platform':  {'id': 'Platform_ID',  'name': 'Platform_Name'},
+        'Genre':     {'id': 'Genre_ID',     'name': 'Genre_Name'}
+    }
+    
+    if table not in table_map or not query_text:
+        return []
+
+    col_id = table_map[table]['id']
+    col_name = table_map[table]['name']
+
+    conn = get_db_connection()
+    if conn is None:
+        return []
+
+    cursor = conn.cursor(dictionary=True)
+    try:
+        sql = f"SELECT {col_id} as id, {col_name} as text FROM {table} WHERE {col_name} LIKE %s LIMIT 10"
+        cursor.execute(sql, (f"{query_text}%",))
+        return cursor.fetchall()
+    except mysql.connector.Error as err:
+        print(f"FK Search Error: {err}")
+        return []
     finally:
         cursor.close()
         conn.close()
