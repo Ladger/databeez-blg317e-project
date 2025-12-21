@@ -44,10 +44,31 @@ function loadRecordDetails() {
             }
 
             schema.forEach(field => {
+                
+                if (field.type === 'separator') {
+                    const separator = document.createElement('div');
+                    separator.className = 'detail-separator';
+                    separator.innerText = field.label;
+                    
+                    separator.style.cssText = `
+                        grid-column: 1 / -1; 
+                        margin-top: 20px; 
+                        margin-bottom: 10px; 
+                        padding-bottom: 5px; 
+                        border-bottom: 2px solid #555; 
+                        color: #9d4ffc; 
+                        font-size: 1.5rem; 
+                        font-weight: bold;
+                    `;
+                    formArea.appendChild(separator);
+                    return;
+                }
+
                 const key = field.key;
                 const label = field.label;
-                const value = data[key];
+                let value = data[key];
 
+                if (value === null || value === undefined) value = "N/A";
                 if (key === pkKey) return;
 
                 const fieldGroup = document.createElement('div');
@@ -64,10 +85,13 @@ function loadRecordDetails() {
                     return;
                 }
 
-                const isRank = key === 'Rank';
-                const isGlobalSales = (CURRENT_ENTITY_TYPE === 'Sales' && key === 'Global_Sales');
-                const isReadOnly = isRank || isGlobalSales;
-
+                // Read-Only Fields
+                const readOnlyFields = [
+                    'Rank', 'Global_Sales', 
+                    'Total_Games', 'Total_Global_Sales', 'Avg_Global_Sales', 'Top_Game_Name'
+                ];
+                
+                const isReadOnly = readOnlyFields.includes(key);
                 const isForeignKey = FK_CONFIG.hasOwnProperty(key);
 
                 if (isForeignKey && CURRENT_ENTITY_TYPE === 'Game') {
@@ -87,17 +111,15 @@ function loadRecordDetails() {
                     `;
                     formArea.appendChild(fieldGroup);
                     setupAutocomplete(key, config.table);
-
                 } else {
                     const salesClass = (CURRENT_ENTITY_TYPE === 'Sales') ? 'sales-input' : '';
-                    
                     fieldGroup.innerHTML = `
                         <label class="field-label">${label}</label>
                         <input type="text" 
                                class="field-value ${salesClass}" 
                                id="input-${key}" 
                                name="${key}"
-                               value="${value !== null ? value : ''}" 
+                               value="${value}" 
                                ${isReadOnly ? 'disabled style="background:#e9ecef; color:#6c757d;"' : ''}>
                     `;
                     formArea.appendChild(fieldGroup);
@@ -201,8 +223,6 @@ function performUpdate() {
 
 function performDelete() {
     let message = "Are you sure you want to delete this record?";
-    
-    // Genre siliniyorsa özel ve daha sert bir uyarı göster
     if (CURRENT_ENTITY_TYPE === 'Genre'|| CURRENT_ENTITY_TYPE === 'Platform') {
         message = "ATTENTION! Deleting this " + CURRENT_ENTITY_TYPE.toLowerCase() + 
                   " will permanently remove ALL associated games and their sales data. \n\nAre you sure you want to proceed?";
@@ -224,4 +244,3 @@ function performDelete() {
         .catch(err => console.error("Delete error:", err));
     }
 }
-         

@@ -123,13 +123,13 @@ const DETAIL_SCHEMAS = {
     'Game': [
         { key: 'Name', label: 'Game Title' },
         { key: 'Year', label: 'Release Year' },
-        { key: 'Rank', label: 'Current Rank' },
-        { key: 'Platform_ID', label: 'Platform' },
+        { key: 'Rank', label: 'Current Rank' }, 
+        { key: 'Platform_ID', label: 'Platform' }, 
         { key: 'Publisher_ID', label: 'Publisher' },
         { key: 'Genre_ID', label: 'Genre' }
     ],
     'Sales': [
-        { key: 'Game_ID', label: 'Game Name' },
+        { key: 'Game_ID', label: 'Game Name' }, 
         { key: 'Global_Sales', label: 'Global Sales (Total)' },
         { key: 'NA_Sales', label: 'North America Sales' },
         { key: 'EU_Sales', label: 'Europe Sales' },
@@ -139,7 +139,14 @@ const DETAIL_SCHEMAS = {
     'Platform': [
         { key: 'Platform_Name', label: 'Console Name' },
         { key: 'Manufacturer', label: 'Company / Manufacturer' },
-        { key: 'Release_Year', label: 'Launch Year' }
+        { key: 'Release_Year', label: 'Launch Year' },
+        
+        { type: 'separator', label: 'Platform Statistics' },
+        
+        { key: 'Total_Games', label: 'Total Games Released' },
+        { key: 'Total_Global_Sales', label: 'Total Global Sales (M)' },
+        { key: 'Avg_Global_Sales', label: 'Average Sales per Game (M)' },
+        { key: 'Top_Game_Name', label: 'Best Selling Game' }
     ],
     'Publisher': [
         { key: 'Publisher_Name', label: 'Publisher Name' },
@@ -149,6 +156,13 @@ const DETAIL_SCHEMAS = {
     'Genre': [
         { key: 'Genre_Name', label: 'Genre Name' },
         { key: 'Description', label: 'Description' },
-        { key: 'Example_Game', label: 'Classic Example' }
+        { key: 'Example_Game', label: 'Classic Example' },
+        
+        { type: 'separator', label: 'Genre Statistics' },
+        
+        { key: 'Total_Games', label: 'Total Games in Genre' },
+        { key: 'Total_Global_Sales', label: 'Total Sales (M)' },
+        { key: 'Avg_Global_Sales', label: 'Avg Sales per Game (M)' },
+        { key: 'Top_Game_Name', label: 'Top Game' }
     ]
 };

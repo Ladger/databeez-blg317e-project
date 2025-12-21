@@ -79,6 +79,38 @@ def api_get_record(table_name, record_id):
             cursor.execute(sql, (record_id,))
             data = cursor.fetchone()
 
+        elif table_name == 'Genre':
+            sql = """
+                SELECT 
+                    g.*,
+                    gs.Total_Games,
+                    gs.Total_Global_Sales,
+                    gs.Avg_Global_Sales,
+                    gm.Name as Top_Game_Name
+                FROM Genre g
+                LEFT JOIN Genre_Stats gs ON g.Genre_ID = gs.Genre_ID
+                LEFT JOIN Game gm ON gs.Top_Game_ID = gm.Game_ID
+                WHERE g.Genre_ID = %s
+            """
+            cursor.execute(sql, (record_id,))
+            data = cursor.fetchone()
+
+        elif table_name == 'Platform':
+            sql = """
+                SELECT 
+                    p.*,
+                    ps.Total_Games,
+                    ps.Total_Global_Sales,
+                    ps.Avg_Global_Sales,
+                    gm.Name as Top_Game_Name
+                FROM Platform p
+                LEFT JOIN Platform_Stats ps ON p.Platform_ID = ps.Platform_ID
+                LEFT JOIN Game gm ON ps.Top_Game_ID = gm.Game_ID
+                WHERE p.Platform_ID = %s
+            """
+            cursor.execute(sql, (record_id,))
+            data = cursor.fetchone()
+
         else:
             pk_column = f"{table_name}_ID"
             sql = f"SELECT * FROM {table_name} WHERE {pk_column} = %s"
