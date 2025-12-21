@@ -343,3 +343,46 @@ input:focus {
     cursor: not-allowed;
     border-color: #333;
 }
+
+/* Show: Limit dropdown style */
+.table-page-header {
+    display: flex;
+    justify-content: space-between; 
+    align-items: center;            
+    margin-bottom: 20px;
+}
+
+/* 2. Wrapper for "Show: 300" - Locks them to the same center line */
+.entry-count-dropdown {
+    display: flex;
+    align-items: center; 
+    gap: 12px;           
+}
+
+/* 3. The "Show:" Label */
+.entry-count-dropdown label {
+    margin: 0;           /* Removes default browser spacing */
+    padding: 0;          
+    color: #b0b0b0;      /* Dark Theme Gray */
+    font-size: 0.95rem;  
+    font-weight: 500;
+    line-height: 1;      /* Prevents text from sitting too high/low */
+}
+
+/* 4. The Dropdown Box */
+#entry-count {
+    background-color: #2c2c2c;
+    color: #ffffff;
+    border: 1px solid #444;
+    border-radius: 6px;
+    padding: 6px 30px 6px 12px; /* Extra right padding for the arrow */
+    font-size: 0.9rem;
+    cursor: pointer;
+    outline: none;
+    height: 34px;        /* Fixed height ensures perfect alignment with text */
+}
+
+#entry-count:hover {
+    background-color: #383838;
+    border-color: #666;
+}

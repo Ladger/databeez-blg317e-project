@@ -1,90 +1,337 @@
 <!DOCTYPE html>
-
 <html lang="en">
-
 <head>
-
     <meta charset="UTF-8">
-
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
     <title>DataBeeZ - Welcome</title>
-
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     
     <style>
-        .search-container {
+        /* --- MEVCUT YAPININ KORUNMASI VE GELİŞTİRİLMESİ --- */
+        body {
+            background-color: #1a1a1a; /* Koyu tema */
+            color: #fff;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* Navbar placeholder genişliği */
+        #navbar-placeholder { width: 100%; }
+
+        /* Ana içerik alanını ortalamak için Hero Container */
+        .hero-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            text-align: center;
+            /* Hafif bir gradyan arka plan */
+            background: radial-gradient(circle at center, #2a2a2a 0%, #1a1a1a 100%);
+        }
+
+        /* Yeni Başlık Stili */
+        .hero-title {
+            font-size: 3rem;
+            margin-bottom: 30px;
+            /* Modern gradyan yazı efekti */
+            background: linear-gradient(90deg, #ff8a00, #e52e71);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 800;
+        }
+
+        /* Arama Kutusunu Çevreleyen Alan (Eski .search-container geliştirildi) */
+        .search-box-wrapper {
             position: relative;
             display: flex;
             flex-direction: column;
             align-items: center;
-            margin-top: 30px;
             width: 100%;
-            background: #000000;
+            max-width: 800px;
+            background: rgba(255, 255, 255, 0.05); /* Hafif transparan */
+            padding: 25px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px); /* Buzlu cam efekti */
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
-        #search-input {
+
+        /* Filtrelerin yan yana durması için satır */
+        .filters-row {
+            display: flex;
+            gap: 15px;
+            width: 100%;
+            margin-bottom: 20px;
+            justify-content: space-between;
+        }
+
+        /* Dropdown Menü Stilleri */
+        .filter-select {
+            flex: 1;
             padding: 12px;
-            width: 90%; 
-            max-width: 500px;
-            font-size: 1.1em;
-            border: 2px solid #ccc;
-            border-radius: 5px;
+            border-radius: 8px;
+            border: 1px solid #444;
+            background-color: #222;
+            color: #ddd;
+            font-size: 0.95em;
+            outline: none;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .filter-select:hover { background-color: #333; }
+
+        /* Ana Arama Inputu (Eski #search-input) */
+        #search-input {
+            padding: 15px;
+            width: 96%; 
+            font-size: 1.2em;
+            border: 2px solid #e52e71; /* Vurgu rengi */
+            background-color: #222;
+            color: white;
+            border-radius: 8px;
             outline: none;
         }
+
+        /* Sonuç Listesi (Eski #search-results) */
         #search-results {
             position: absolute;
-            top: 50px;
-            width: 90%;
-            max-width: 500px;
-            background: #000000;
-            border: 1px solid #000000;
+            top: 100%; /* Inputun hemen altına yapışır */
+            left: 0;
+            right: 0;
+            width: 100%;
+            max-height: 300px; /* Çok uzarsa scroll çıkar */
+            overflow-y: auto;
+            background: #222;
+            border: 1px solid #444;
             border-top: none; 
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.5);
             list-style: none;
             padding: 0;
             margin: 0;
             z-index: 1000;
-            border-bottom-left-radius: 5px;
-            border-bottom-right-radius: 5px;
+            border-bottom-left-radius: 10px;
+            border-bottom-right-radius: 10px;
+            display: none; /* Başlangıçta gizli */
+            margin-top: 5px;
         }
+
+        /* Sonuç Elemanları (Eski .search-item) */
         .search-item {
-            padding: 10px;
-            border-bottom: 1px solid #eee;
+            padding: 15px;
+            border-bottom: 1px solid #333;
             cursor: pointer;
             text-align: left;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            text-decoration: none;
+            color: white;
+            transition: background 0.2s;
         }
         .search-item:hover {
-            background-color: #f0f0f0;
+            background-color: #333;
         }
-    </style>
+        
+        .item-info { display: flex; flex-direction: column; }
+        .game-name { font-weight: bold; color: #e52e71; font-size: 1.1em; }
+        .game-details { font-size: 0.85em; color: #aaa; margin-top: 4px; }
+        .arrow { color: #666; font-size: 1.2em; }
 
+    </style>
 </head>
 
 <body>
 
     <div id="navbar-placeholder"></div>
 
+    <div class="hero-container">
+        
+        <h1 class="hero-title">What do you want to play today?</h1>
 
-<main id="content-area">
-        <div class="welcome-text">
-            Welcome!
+        <div class="search-box-wrapper">
+            
+            <div class="filters-row">
+                <select id="genre-select" class="filter-select">
+                    <option value="all">All Genres</option>
+                    </select>
+                
+                <select id="platform-select" class="filter-select">
+                    <option value="all">All Platforms</option>
+                    </select>
+
+                <select id="publisher-select" class="filter-select">
+                    <option value="all">All Publishers</option>
+                    </select>
+            </div>
+
+            <input type="text" id="search-input" placeholder="Type a game name..." autocomplete="off">
+            
+            <div id="search-results"></div>
         </div>
 
-        <div class="search-container">
-            <input type="text" id="search-input" placeholder="Search for Games, Platforms or Publishers..." autocomplete="on">
-            <ul id="search-results"></ul>
-        </div>
-
-        <p style="text-align: center; font-size: 1.2em; margin-top: 20px;">
-            Click on one of the links above to view the Database Tables.
+        <p style="text-align: center; font-size: 1em; margin-top: 30px; color: #888;">
+            Select filters or start typing to explore the DataBeeZ archive.
         </p>
-    </main>
+
+    </div>
+
     <script src="{{ url_for('static', filename='js/navbar.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/autocomplete.js') }}"></script>
+    
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // 1. Başlangıçta filtreleri doldur
+        loadFilters();
+        
+        // Elemanları seç
+        const searchInput = document.getElementById('search-input');
+        const genreSelect = document.getElementById('genre-select');
+        const platformSelect = document.getElementById('platform-select');
+        const publisherSelect = document.getElementById('publisher-select');
+        const resultsContainer = document.getElementById('search-results');
+        
+        // 2. Event Listeners (Her değişiklikte tetiklenir)
+        // 'input' -> yazı yazarken, 'change' -> dropdown seçince
+        searchInput.addEventListener('input', performSearch);
+        genreSelect.addEventListener('change', performSearch);
+        platformSelect.addEventListener('change', performSearch);
+        publisherSelect.addEventListener('change', performSearch);
+        
+        // 3. Arama kutusu odaklandığında sonuçlar varsa tekrar göster
+        searchInput.addEventListener('focus', () => {
+            if (resultsContainer.children.length > 0) {
+                resultsContainer.style.display = 'block';
+            }
+        });
 
+        // 4. Dışarı tıklandığında sonuçları kapat (UX İyileştirmesi)
+        document.addEventListener('click', (e) => {
+            const wrapper = document.querySelector('.search-box-wrapper');
+            // Tıklanan yer wrapper'ın içinde değilse gizle
+            if (!wrapper.contains(e.target)) {
+                resultsContainer.style.display = 'none';
+            }
+        });
+    });
 
+    // --- FONKSİYONLAR ---
+
+    // A. Filtre Seçeneklerini Backend'den Çekme
+    async function loadFilters() {
+        try {
+            const response = await fetch('/api/get_filter_options');
+            if (!response.ok) throw new Error('API Hatası');
+            
+            const data = await response.json();
+
+            // Yardımcı fonksiyonla dropdownları doldur
+            populateSelect('genre-select', data.genres, 'Genre_ID', 'Genre_Name');
+            populateSelect('platform-select', data.platforms, 'Platform_ID', 'Platform_Name');
+            populateSelect('publisher-select', data.publishers, 'Publisher_ID', 'Publisher_Name');
+            
+        } catch (err) {
+            console.error("Filtreler yüklenemedi:", err);
+        }
+    }
+
+    // Dropdown Doldurma Yardımcısı
+    function populateSelect(elementId, items, valueKey, textKey) {
+        const select = document.getElementById(elementId);
+        // Önce temizle (ilk seçenek hariç)
+        // select.innerHTML = '<option value="all">All ...</option>'; // İstersen sıfırlayabilirsin
+        
+        items.forEach(item => {
+            const option = document.createElement('option');
+            option.value = item[valueKey];
+            option.textContent = item[textKey];
+            select.appendChild(option);
+        });
+    }
+
+    // B. Arama Yapma Mantığı
+    async function performSearch() {
+        const query = document.getElementById('search-input').value.trim();
+        const genre = document.getElementById('genre-select').value;
+        const platform = document.getElementById('platform-select').value;
+        const publisher = document.getElementById('publisher-select').value;
+        const resultsContainer = document.getElementById('search-results');
+
+        // Eğer hiç filtre seçili değilse ve yazı yoksa sonuçları gizle ve çık
+        if (query.length === 0 && genre === 'all' && platform === 'all' && publisher === 'all') {
+            resultsContainer.style.display = 'none';
+            return;
+        }
+
+        try {
+            // URL Parametrelerini oluştur
+            const params = new URLSearchParams({
+                q: query,
+                genre_id: genre,
+                platform_id: platform,
+                publisher_id: publisher
+            });
+
+            // Backend'e istek at
+            const response = await fetch(`/api/search_game_with_filters?${params}`);
+            if (!response.ok) throw new Error('Arama başarısız');
+            
+            const games = await response.json();
+
+            // Sonuçları ekrana bas
+            renderResults(games);
+            
+        } catch (err) {
+            console.error("Arama hatası:", err);
+            resultsContainer.innerHTML = '<li class="search-item">Bir hata oluştu.</li>';
+            resultsContainer.style.display = 'block';
+        }
+    }
+
+    // C. Sonuçları HTML Olarak Oluşturma
+    function renderResults(games) {
+        const container = document.getElementById('search-results');
+        container.innerHTML = ''; 
+
+        if (games.length === 0) {
+            container.style.display = 'block';
+            container.innerHTML = '<li class="search-item" style="color:#aaa; justify-content:center;">Sonuç bulunamadı.</li>';
+            return;
+        }
+
+        games.forEach(game => {
+            const item = document.createElement('a');
+            item.className = 'search-item';
+            // Detay sayfasına yönlendirme
+            item.href = `/detailed_view/Game/${game.Game_ID}`; 
+            
+            // Veri kontrolü ve Yıl bilgisi
+            const pName = game.Platform_Name || 'Unknown Platform';
+            const gName = game.Genre_Name || 'Unknown Genre';
+            const pubName = game.Publisher_Name || 'Unknown Publisher';
+            const yearInfo = game.Year ? `(${game.Year})` : '';
+
+            item.innerHTML = `
+                <div class="item-info">
+                    <span class="game-name">${game.Name} <span style="font-size:0.8em; color:#888;">${yearInfo}</span></span>
+                    <span class="game-details">
+                        <span style="color: #4CAF50;">${pName}</span> • 
+                        ${gName} • 
+                        ${pubName}
+                    </span>
+                </div>
+                <span class="arrow">➜</span>
+            `;
+            
+            container.appendChild(item);
+        });
+
+        container.style.display = 'block';
+    }
+</script>
     
 
 </body>
-
 </html>

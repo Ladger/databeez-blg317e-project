@@ -255,3 +255,95 @@ def search_foreign_keys_data(table, query_text):
     finally:
         cursor.close()
         conn.close()
+
+def fetch_filter_options():
+    """
+    Dropdownlar için Genre, Platform ve Publisher listelerini getirir.
+    """
+    conn = get_db_connection()
+    if conn is None:
+        return {'genres': [], 'platforms': [], 'publishers': []}
+
+    cursor = conn.cursor(dictionary=True)
+    try:
+        data = {}
+        
+        # 1. Genres
+        cursor.execute("SELECT Genre_ID, Genre_Name FROM Genre ORDER BY Genre_Name ASC")
+        data['genres'] = cursor.fetchall()
+        
+        # 2. Platforms
+        cursor.execute("SELECT Platform_ID, Platform_Name FROM Platform ORDER BY Platform_Name ASC")
+        data['platforms'] = cursor.fetchall()
+        
+        # 3. Publishers
+        cursor.execute("SELECT Publisher_ID, Publisher_Name FROM Publisher ORDER BY Publisher_Name ASC")
+        data['publishers'] = cursor.fetchall()
+        
+        return data
+
+    except mysql.connector.Error as err:
+        print(f"Filter fetch error: {err}")
+        return {'genres': [], 'platforms': [], 'publishers': []}
+    finally:
+        if conn:
+            cursor.close()
+            conn.close()
+
+def search_games_advanced(query, genre_id=None, platform_id=None, publisher_id=None):
+    """
+    İsim ve seçilen filtrelere göre oyun arar.
+    """
+    conn = get_db_connection()
+    if conn is None:
+        return []
+
+    cursor = conn.cursor(dictionary=True)
+    try:
+        # Temel Sorgu
+        sql = """
+            SELECT 
+                g.Game_ID, 
+                g.Name, 
+                g.Year,
+                pl.Platform_Name, 
+                p.Publisher_Name, 
+                gen.Genre_Name 
+            FROM Game g
+            LEFT JOIN Platform pl ON g.Platform_ID = pl.Platform_ID
+            LEFT JOIN Publisher p ON g.Publisher_ID = p.Publisher_ID
+            LEFT JOIN Genre gen ON g.Genre_ID = gen.Genre_ID
+            WHERE 1=1
+        """
+        params = []
+
+        # Dinamik Filtreleme
+        if query:
+            sql += " AND g.Name LIKE %s"
+            params.append(f"%{query}%")
+        
+        if genre_id and genre_id != 'all':
+            sql += " AND g.Genre_ID = %s"
+            params.append(genre_id)
+            
+        if platform_id and platform_id != 'all':
+            sql += " AND g.Platform_ID = %s"
+            params.append(platform_id)
+            
+        if publisher_id and publisher_id != 'all':
+            sql += " AND g.Publisher_ID = %s"
+            params.append(publisher_id)
+
+        # Sonuçları sırala ve limitle (Çok fazla veri gelmemesi için)
+        sql += " ORDER BY g.Rank ASC LIMIT 50"
+
+        cursor.execute(sql, tuple(params))
+        return cursor.fetchall()
+
+    except mysql.connector.Error as err:
+        print(f"Advanced search error: {err}")
+        return []
+    finally:
+        if conn:
+            cursor.close()
+            conn.close()

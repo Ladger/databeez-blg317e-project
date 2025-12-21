@@ -2,7 +2,7 @@ from flask import Flask, request, render_template, jsonify
 from flask_cors import CORS
 
 from db_utils.db_connector import get_db_connection
-from db_utils.data_access.data_fetch import fetch_table_data, search_all_tables, get_record_by_id
+from db_utils.data_access.data_fetch import fetch_table_data, search_all_tables, get_record_by_id, fetch_filter_options, search_games_advanced
 from db_utils.data_access.game_crud import add_new_game, update_all_game_ranks
 from db_utils.data_access.sales_crud import add_new_sales
 from db_utils.data_access.genre_crud import add_new_genre
@@ -380,6 +380,27 @@ def add_genre():
 
     except Exception as e:
         return jsonify({'success': False, 'message': f"System Error: {str(e)}"}), 500
+
+
+@app.route('/api/get_filter_options')
+def api_get_filter_options():
+    """Sayfa yüklendiğinde dropdownları doldurur."""
+    data = fetch_filter_options()
+    return jsonify(data)
+
+@app.route('/api/search_game_with_filters')
+def api_search_game_with_filters():
+    """Filtrelere göre arama yapar."""
+    query = request.args.get('q', '').strip()
+    genre_id = request.args.get('genre_id')
+    platform_id = request.args.get('platform_id')
+    publisher_id = request.args.get('publisher_id')
+
+    if not query and (not genre_id or genre_id=='all') and (not platform_id or platform_id=='all') and (not publisher_id or publisher_id=='all'):
+        return jsonify([])
+
+    results = search_games_advanced(query, genre_id, platform_id, publisher_id)
+    return jsonify(results)
 
 if __name__ == '__main__':
     app.run(debug=True)
