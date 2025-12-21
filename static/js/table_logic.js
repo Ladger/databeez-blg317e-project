@@ -1,12 +1,10 @@
-// static/js/table_logic.js
-
-// 1. GLOBAL VARIABLES
 let currentSortColumn = null;
 let currentSortOrder = 'ASC';
 let currentSearchQuery = ''; 
+let currentPage = 1;
+let totalRecords = 0;
 
 document.addEventListener('DOMContentLoaded', () => {
-    // Get table ID from URL when page loads (e.g., ?id=game)
     const urlParams = new URLSearchParams(window.location.search);
     const tableId = urlParams.get('id');
 
@@ -15,61 +13,47 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-/**
- * Sayfayı ve arama olaylarını başlatan ana fonksiyon
- */
 function initializeTablePage(tableId) {
     const tableInfo = TABLE_SCHEMAS[tableId];
     
-    // Set titles dynamically
     const titleElement = document.getElementById('page-title');
     if(titleElement) titleElement.innerText = tableInfo.title;
     
     const countElement = document.getElementById('entry-count');
     if(countElement) countElement.setAttribute('data-table', tableInfo.title);
 
-    // --- CANLI ARAMA (LIVE SEARCH) DİNLEYİCİSİ ---
     const searchInput = document.getElementById('search-input');
     let searchTimeout = null;
 
     if (searchInput) {
         searchInput.addEventListener('input', () => {
-            // Kullanıcı yazarken önceki beklemeyi iptal et (Debounce)
             clearTimeout(searchTimeout);
-
-            // 300ms sonra aramayı başlat (Performans için)
             searchTimeout = setTimeout(() => {
                 currentSearchQuery = searchInput.value.trim();
+                currentPage = 1;
                 refreshCurrentTable();
             }, 300);
         });
     }
 
-    // İlk Yükleme
-    fetchAndRenderData(tableInfo.title, countElement.value, tableInfo);
+    refreshCurrentTable();
 
-    // Listen for limit changes
     countElement.addEventListener('change', (e) => {
-        fetchAndRenderData(tableInfo.title, e.target.value, tableInfo);
+        currentPage = 1;
+        refreshCurrentTable();
     });
 }
 
-/**
- * Aramayı temizler ve tabloyu eski haline döndürür
- */
 function clearSearch() {
     const input = document.getElementById('search-input');
     if (input) {
-        input.value = ''; // Visually clear the input box
+        input.value = '';
     }
-    currentSearchQuery = ''; // Clear the memory
-    refreshCurrentTable();  // Refresh the table
+    currentSearchQuery = '';
+    currentPage = 1;
+    refreshCurrentTable();
 }
 
-// Helper Function: Refreshes the table with current settings (Sort + Search + Limit)
-/**
- * Mevcut tabloyu güncel parametrelerle yeniden yükler
- */
 function refreshCurrentTable() {
     const urlParams = new URLSearchParams(window.location.search);
     const tableId = urlParams.get('id');
@@ -80,10 +64,6 @@ function refreshCurrentTable() {
     }
 }
 
-// --- UPDATED SORT FUNCTION ---
-/**
- * Sıralama (Sort) işlemini yönetir
- */
 function handleSort(columnKey) {
     if (currentSortColumn === columnKey) {
         currentSortOrder = (currentSortOrder === 'ASC') ? 'DESC' : 'ASC';
@@ -91,28 +71,39 @@ function handleSort(columnKey) {
         currentSortColumn = columnKey;
         currentSortOrder = 'ASC';
     }
+    currentPage = 1; 
     refreshCurrentTable();
 }
 
-// --- FETCH AND RENDER FUNCTION ---
-/**
- * Veriyi çeker ve tabloyu oluşturur
- */
+function changePage(direction) {
+    const limit = parseInt(document.getElementById('entry-count').value);
+    const maxPage = Math.ceil(totalRecords / limit);
+
+    let newPage = currentPage + direction;
+
+    if (newPage > 0 && newPage <= maxPage) {
+        currentPage = newPage;
+        refreshCurrentTable();
+    }
+}
+
 async function fetchAndRenderData(tableName, limit, tableConfig) {
     const dataArea = document.getElementById('table-data-area');
     const headerContainer = document.getElementById('table-headers');
+    const infoSpan = document.getElementById('pagination-info');
+    const prevBtn = document.getElementById('prev-btn');
+    const nextBtn = document.getElementById('next-btn');
+
     const columns = tableConfig.columns;
 
-    dataArea.innerHTML = '<div style="padding:20px; text-align:center;">Loading...</div>';
+    dataArea.innerHTML = '<div style="padding:20px; text-align:center; color:#ccc;">Loading...</div>';
 
     try {
-        // BUILD API URL
-        let url = `/api/get_data/${tableName}?limit=${limit}`; 
-        // Add sorting
+        // Updated URL to include page
+        let url = `/api/get_data/${tableName}?limit=${limit}&page=${currentPage}`; 
         if (currentSortColumn) {
             url += `&sort_by=${currentSortColumn}&order=${currentSortOrder}`;
         }
-        // NEW: Add search
         if (currentSearchQuery) {
             url += `&search=${encodeURIComponent(currentSearchQuery)}`;
         }
@@ -120,28 +111,32 @@ async function fetchAndRenderData(tableName, limit, tableConfig) {
         const response = await fetch(url);      
         if (!response.ok) throw new Error(`Server Error: ${response.status}`);
         
-        let data = await response.json();
+        const resultObj = await response.json();
+        const data = resultObj.data;
+        totalRecords = resultObj.total;
 
-        // --- ÖNEMLİ: KELİME BAŞI (PREFIX) FİLTRESİ ---
-        // Veritabanından gelen sonuçları, tam olarak aranan harflerle BAŞLAYANLAR şeklinde süzüyoruz.
-        if (currentSearchQuery && data.length > 0) {
-            data = data.filter(item => {
-                // Tablodaki ana ismi bul (Genelde ilk sütun olur)
-                const firstColKey = columns[0].key;
-                const valueToCompare = String(item[firstColKey] || "").toLowerCase();
-                
-                // .startsWith() kullanarak sadece kelimenin başıyla eşleşenleri al
-                return valueToCompare.startsWith(currentSearchQuery.toLowerCase());
-            });
-        }
-
-        // Kayıt yoksa uyarı ver
-        if (!data || data.length === 0) {
-            dataArea.innerHTML = '<div style="padding:20px; text-align:center;">No records found matching your criteria.</div>';
+        if (totalRecords === 0) {
+            infoSpan.innerText = "0 - 0 / 0";
+            prevBtn.disabled = true;
+            nextBtn.disabled = true;
+            dataArea.innerHTML = '<div style="padding:20px; text-align:center;">No records found.</div>';
+            headerContainer.innerHTML = '';
             return;
         }
 
-        // HEADERS (BAŞLIKLAR) OLUŞTURMA
+        const startEntry = (currentPage - 1) * limit + 1;
+        const endEntry = Math.min(currentPage * limit, totalRecords);
+        infoSpan.innerText = `${startEntry} - ${endEntry} / ${totalRecords}`;
+
+        prevBtn.disabled = (currentPage === 1);
+        nextBtn.disabled = (endEntry >= totalRecords);
+        
+        prevBtn.style.opacity = prevBtn.disabled ? "0.3" : "1";
+        prevBtn.style.cursor = prevBtn.disabled ? "default" : "pointer";
+        nextBtn.style.opacity = nextBtn.disabled ? "0.3" : "1";
+        nextBtn.style.cursor = nextBtn.disabled ? "default" : "pointer";
+
+
         headerContainer.style.gridTemplateColumns = `repeat(${columns.length}, 1fr) 50px`;
         headerContainer.innerHTML = ''; 
 
@@ -154,11 +149,8 @@ async function fetchAndRenderData(tableName, limit, tableConfig) {
             headerCell.onclick = () => handleSort(col.key);
             headerContainer.appendChild(headerCell);
         });
-
-        // İşlem (Detay) sütunu için boş başlık
         headerContainer.appendChild(document.createElement('div'));
 
-        // ROWS (SATIRLAR) OLUŞTURMA
         const rowsHtml = data.map(row => {
             const rowId = row[tableConfig.idKey]; 
             const cells = columns.map(col => {

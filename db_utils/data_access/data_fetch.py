@@ -2,105 +2,85 @@ import mysql.connector
 from ..db_connector import get_db_connection
 
 def fetch_table_data(table_name, limit=100, offset=0, sort_by=None, sort_order='ASC', search_query=None):
-    """
-    Fetches data using JOIN operations, Sorting, Pagination, and SEARCH capabilities.
-    """
     ALLOWED_TABLES = ['Game', 'Publisher', 'Platform', 'Genre', 'Sales']
     
     if table_name not in ALLOWED_TABLES:
-        return []
+        return {'data': [], 'total': 0}
 
     conn = get_db_connection()
     if conn is None:
-        return []
+        return {'data': [], 'total': 0}
 
     try:
         cursor = conn.cursor(dictionary=True)
         params = []
+        where_clauses = []
 
         if table_name == 'Game':
-            base_query = """
-                SELECT 
-                    g.Game_ID, 
-                    g.Name, 
-                    g.Year, 
-                    g.`Rank`,
-                    p.Publisher_Name, 
-                    pl.Platform_Name, 
-                    ge.Genre_Name
+            select_sql = """
+                SELECT g.Game_ID, g.Name, g.Year, g.`Rank`,
+                    p.Publisher_Name, pl.Platform_Name, ge.Genre_Name
                 FROM Game g
                 LEFT JOIN Publisher p ON g.Publisher_ID = p.Publisher_ID
                 LEFT JOIN Platform pl ON g.Platform_ID = pl.Platform_ID
                 LEFT JOIN Genre ge ON g.Genre_ID = ge.Genre_ID
             """
+            count_sql = "SELECT COUNT(*) as total FROM Game g"
+            
             if search_query:
-                base_query += " WHERE g.Name LIKE %s"
-                params.append(f"%{search_query}%")
+                where_clauses.append("g.Name LIKE %s") 
+                params.append(f"{search_query}%")
 
         elif table_name == 'Sales':
-            base_query = """
-                SELECT 
-                    s.Sales_ID, 
-                    g.Name as Game_Name, 
-                    s.NA_Sales, 
-                    s.EU_Sales, 
-                    s.JP_Sales, 
-                    s.Other_Sales, 
-                    s.Global_Sales
+            select_sql = """
+                SELECT s.Sales_ID, g.Name as Game_Name, s.NA_Sales, s.EU_Sales, 
+                    s.JP_Sales, s.Other_Sales, s.Global_Sales
                 FROM Sales s
                 LEFT JOIN Game g ON s.Game_ID = g.Game_ID
             """
+            count_sql = "SELECT COUNT(*) as total FROM Sales s LEFT JOIN Game g ON s.Game_ID = g.Game_ID"
+            
             if search_query:
-                base_query += " WHERE g.Name LIKE %s"
-                params.append(f"%{search_query}%")
+                where_clauses.append("g.Name LIKE %s")
+                params.append(f"{search_query}%")
 
-        elif table_name == 'Publisher':
-            base_query = "SELECT * FROM Publisher"
-            if search_query:
-                base_query += " WHERE Publisher_Name LIKE %s"
-                params.append(f"%{search_query}%")
-        
-        elif table_name == 'Platform':
-            base_query = "SELECT * FROM Platform"
-            if search_query:
-                base_query += " WHERE Platform_Name LIKE %s"
-                params.append(f"%{search_query}%")
-
-        elif table_name == 'Genre':
-            base_query = "SELECT * FROM Genre"
-            if search_query:
-                base_query += " WHERE Genre_Name LIKE %s"
-                params.append(f"%{search_query}%")
-                
         else:
-            base_query = f"SELECT * FROM {table_name}"
+            select_sql = f"SELECT * FROM {table_name}"
+            count_sql = f"SELECT COUNT(*) as total FROM {table_name}"
+            
+            if search_query:
+                name_col = f"{table_name}_Name"
+                where_clauses.append(f"{name_col} LIKE %s")
+                params.append(f"{search_query}%")
+
+        if where_clauses:
+            full_where = " WHERE " + " AND ".join(where_clauses)
+            select_sql += full_where
+            count_sql += full_where
+
+        cursor.execute(count_sql, tuple(params))
+        count_result = cursor.fetchone()
+        total_records = count_result['total'] if count_result else 0
 
         safe_order = 'DESC' if str(sort_order).upper() == 'DESC' else 'ASC'
-        
         if sort_by:
-            order_clause = f" ORDER BY `{sort_by}` {safe_order}"
+            select_sql += f" ORDER BY `{sort_by}` {safe_order}"
         else:
-            if table_name == 'Game':
-                order_clause = " ORDER BY g.`Rank` ASC"
-            elif table_name == 'Sales':
-                order_clause = " ORDER BY s.Global_Sales DESC"
-            else:
-                order_clause = f" ORDER BY {table_name}_ID ASC"
+            if table_name == 'Game': select_sql += " ORDER BY g.`Rank` ASC"
+            elif table_name == 'Sales': select_sql += " ORDER BY s.Global_Sales DESC"
+            else: select_sql += f" ORDER BY {table_name}_ID ASC"
 
-        limit_clause = " LIMIT %s OFFSET %s"
+        select_sql += " LIMIT %s OFFSET %s"
         params.extend([limit, offset])
-        
-        final_query = base_query + order_clause + limit_clause
-        
 
-        cursor.execute(final_query, tuple(params))
+        cursor.execute(select_sql, tuple(params))
         result = cursor.fetchall()
         
-        return result
+        return {'data': result, 'total': total_records}
 
     except mysql.connector.Error as err:
         print(f"Error fetching data from {table_name}: {err}")
-        return []
+        return {'data': [], 'total': 0}
         
     finally:
         if conn:
